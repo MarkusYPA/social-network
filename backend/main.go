@@ -47,6 +47,9 @@ func setHandlers() {
 	http.HandleFunc("/api/group-posts/create", middleware.WithCORS(handlers.CreateGroupPostHandler))
 
 	http.HandleFunc("/api/login", middleware.WithCORS(handlers.HandleLogin))
+
+	http.HandleFunc("/api/auth/github", middleware.WithCORS(handleGitHubLogin))
+	http.HandleFunc("/api/auth/github/callback", middleware.WithCORS(handleGitHubCallback))
 	http.HandleFunc("/api/register", middleware.WithCORS(handlers.HandleRegister))
 	http.HandleFunc("/api/logout", middleware.WithCORS(handlers.HandleLogout))
 	http.HandleFunc("/api/me", middleware.WithCORS(handlers.HandleMe))
@@ -102,6 +105,8 @@ func setHandlers() {
 }
 
 func main() {
+
+
 	config.InitConfig()
 
 	err := database.NewDatabase(config.DBPath)
@@ -113,6 +118,10 @@ func main() {
 	deleteUnusedImages()
 
 	go service.StartBroadcastListener()
+
+    if clientID == "" || clientSecret == "" {
+        log.Fatal("GitHub OAuth credentials not set in environment variables")
+    }
 
 	setHandlers()
 	fmt.Printf("Backend running on port %s, allowing requests from %s\n", config.Port, config.FrontendURL)
