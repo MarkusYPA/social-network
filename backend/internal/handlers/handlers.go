@@ -11,31 +11,32 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
+	"context"
 	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/github"
+	_ "golang.org/x/oauth2/github"
+
 )
 
 
-var (
-	githubOAuthConfig = &oauth2.Config{
-		ClientID:     os.Getenv("GITHUB_CLIENT_ID"),
-		ClientSecret: os.Getenv("GITHUB_CLIENT_SECRET"),
-		RedirectURL:  os.Getenv("GITHUB_REDIRECT_URL"), // e.g., "http://localhost:8080/api/auth/github/callback"
-		Scopes:       []string{"user:email"},
-		Endpoint:     github.Endpoint,
-	}
-)
+var githubOAuthConfig *oauth2.Config
 
+// SetGitHubOAuthConfig is a function to set the config from main
+func SetGitHubOAuthConfig(config *oauth2.Config) {
+    githubOAuthConfig = config
+}
 
-func handleGitHubLogin(w http.ResponseWriter, r *http.Request) {
+func HandleGitHubLogin(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("information")
+	fmt.Println(githubOAuthConfig.ClientID)
+	fmt.Println(githubOAuthConfig.ClientSecret)
+	fmt.Println(githubOAuthConfig.RedirectURL)
 	// Generate a random state string (should be stored in session for validation)
 	oauthState := generateStateOauthCookie(w)
 	url := githubOAuthConfig.AuthCodeURL(oauthState)
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
-func handleGitHubCallback(w http.ResponseWriter, r *http.Request) {
+func HandleGitHubCallback(w http.ResponseWriter, r *http.Request) {
 	// Verify state matches
 	oauthState, _ := r.Cookie("oauthstate")
 	if r.FormValue("state") != oauthState.Value {

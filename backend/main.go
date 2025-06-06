@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -48,8 +47,8 @@ func setHandlers() {
 
 	http.HandleFunc("/api/login", middleware.WithCORS(handlers.HandleLogin))
 
-	http.HandleFunc("/api/auth/github", middleware.WithCORS(handleGitHubLogin))
-	http.HandleFunc("/api/auth/github/callback", middleware.WithCORS(handleGitHubCallback))
+	http.HandleFunc("/api/auth/github", middleware.WithCORS(handlers.HandleGitHubLogin))
+	http.HandleFunc("/api/auth/github/callback", middleware.WithCORS(handlers.HandleGitHubCallback))
 	http.HandleFunc("/api/register", middleware.WithCORS(handlers.HandleRegister))
 	http.HandleFunc("/api/logout", middleware.WithCORS(handlers.HandleLogout))
 	http.HandleFunc("/api/me", middleware.WithCORS(handlers.HandleMe))
@@ -107,8 +106,10 @@ func setHandlers() {
 func main() {
 
 
+	
 	config.InitConfig()
-
+	fmt.Println(config.GithubOAuthConfig.ClientID)
+	handlers.SetGitHubOAuthConfig(config.GithubOAuthConfig)
 	err := database.NewDatabase(config.DBPath)
 	if err != nil {
 		log.Fatal(err)
@@ -119,9 +120,6 @@ func main() {
 
 	go service.StartBroadcastListener()
 
-    if clientID == "" || clientSecret == "" {
-        log.Fatal("GitHub OAuth credentials not set in environment variables")
-    }
 
 	setHandlers()
 	fmt.Printf("Backend running on port %s, allowing requests from %s\n", config.Port, config.FrontendURL)
