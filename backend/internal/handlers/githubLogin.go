@@ -205,7 +205,7 @@ func HandleGitHubCallback(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to create session: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
-	redirectURL := fmt.Sprintf("%s/dashboard?loggedIn=true", config.FrontendURL) // Add a query param for frontend to detect
+	redirectURL := fmt.Sprintf("%s/", config.FrontendURL) // Add a query param for frontend to detect
 	http.Redirect(w, r, redirectURL, http.StatusFound)
 	// For now, just return the combined user info as JSON
 	// w.Header().Set("Content-Type", "application/json")
