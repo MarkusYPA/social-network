@@ -115,7 +115,6 @@ async function login() {
 }
 
 async function loginWithGitHub() {
-    // Redirect to backend GitHub auth endpoint
-    window.location.href = `${apiUrl}/api/auth/github`
+    window.location.href = `${apiUrl}/api/auth/github`;
 }
 </script>

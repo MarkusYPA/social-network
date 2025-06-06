@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -105,8 +106,6 @@ func setHandlers() {
 
 func main() {
 
-
-	
 	config.InitConfig()
 	fmt.Println(config.GithubOAuthConfig.ClientID)
 	handlers.SetGitHubOAuthConfig(config.GithubOAuthConfig)
@@ -119,7 +118,6 @@ func main() {
 	deleteUnusedImages()
 
 	go service.StartBroadcastListener()
-
 
 	setHandlers()
 	fmt.Printf("Backend running on port %s, allowing requests from %s\n", config.Port, config.FrontendURL)

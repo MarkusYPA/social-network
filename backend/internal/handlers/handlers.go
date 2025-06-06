@@ -6,98 +6,12 @@ import (
 	"backend/internal/service"
 	"database/sql"
 	"encoding/json"
-	"fmt"
+	"fmt" // Import log for error handling
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
-	"context"
-	"golang.org/x/oauth2"
-	_ "golang.org/x/oauth2/github"
-
 )
-
-
-var githubOAuthConfig *oauth2.Config
-
-// SetGitHubOAuthConfig is a function to set the config from main
-func SetGitHubOAuthConfig(config *oauth2.Config) {
-    githubOAuthConfig = config
-}
-
-func HandleGitHubLogin(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("information")
-	fmt.Println(githubOAuthConfig.ClientID)
-	fmt.Println(githubOAuthConfig.ClientSecret)
-	fmt.Println(githubOAuthConfig.RedirectURL)
-	// Generate a random state string (should be stored in session for validation)
-	oauthState := generateStateOauthCookie(w)
-	url := githubOAuthConfig.AuthCodeURL(oauthState)
-	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
-}
-
-func HandleGitHubCallback(w http.ResponseWriter, r *http.Request) {
-	// Verify state matches
-	oauthState, _ := r.Cookie("oauthstate")
-	if r.FormValue("state") != oauthState.Value {
-		http.Error(w, "Invalid OAuth state", http.StatusBadRequest)
-		return
-	}
-
-	// Exchange code for token
-	token, err := githubOAuthConfig.Exchange(context.Background(), r.FormValue("code"))
-	if err != nil {
-		http.Error(w, "Failed to exchange token: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	// Get user info from GitHub
-	client := githubOAuthConfig.Client(context.Background(), token)
-	resp, err := client.Get("https://api.github.com/user")
-	if err != nil {
-		http.Error(w, "Failed to get user info: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer resp.Body.Close()
-
-	var githubUser struct {
-		ID    int    `json:"id"`
-		Login string `json:"login"`
-		Name  string `json:"name"`
-		Email string `json:"email"`
-	}
-
-	if err := json.NewDecoder(resp.Body).Decode(&githubUser); err != nil {
-		http.Error(w, "Failed to decode user info: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	// Here you would:
-	// 1. Check if user exists in your DB by GitHub ID
-	// 2. If not, create a new user account
-	// 3. Generate a session/JWT token for the user
-	// 4. Redirect back to frontend with the token
-
-	// For now, just return the user info as JSON
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(githubUser)
-}
-
-func generateStateOauthCookie(w http.ResponseWriter) string {
-	// Implement proper state generation and cookie setting
-	// This is a simplified version
-	state := "random-state-string" // Should be random and unique
-	cookie := http.Cookie{
-		Name:     "oauthstate",
-		Value:    state,
-		Path:     "/",
-		MaxAge:   3600,
-		HttpOnly: true,
-		Secure:   true, // Set to false in development if using HTTP
-	}
-	http.SetCookie(w, &cookie)
-	return state
-}
 
 func HandleLogin(w http.ResponseWriter, r *http.Request) {
 	user, statusCode := service.Login(w, r)

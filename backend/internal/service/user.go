@@ -111,8 +111,6 @@ func UploadAvatar(file multipart.File, header *multipart.FileHeader) (sql.NullSt
 
 	avatarPath.Valid = true
 	avatarPath.String = filename
-	//fmt.Println("Avatar uploaded succesfully")
-
 	return avatarPath, nil
 }
 

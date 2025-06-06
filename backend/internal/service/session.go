@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -45,7 +46,7 @@ func Login(w http.ResponseWriter, r *http.Request) (model.User, int) {
 		return user, http.StatusBadRequest
 	}
 
-	user, err := repository.GetUserByEmail(req)
+	user, _, err := repository.GetUserByEmail(req)
 	if err != nil {
 		return emptyUser, http.StatusUnauthorized
 	}
@@ -72,6 +73,7 @@ func CreateSession(user model.User, w http.ResponseWriter) error {
 
 	err := repository.InsertSession(sessionID, user, expiresAt)
 	if err != nil {
+		fmt.Printf("ERROR: Failed to insert session for user : %v\n", err)
 		return err
 	}
 

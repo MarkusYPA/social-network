@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func GetUserByEmail(req model.LoginRequest) (model.User, error) {
+func GetUserByEmail(req model.LoginRequest) (model.User, bool, error) {
 	var user model.User
 	var nickname sql.NullString
 	var about sql.NullString
@@ -24,9 +24,9 @@ func GetUserByEmail(req model.LoginRequest) (model.User, error) {
 
 	if err != nil {
 		fmt.Println("error getting user by email:", err)
-		return user, err
+		return user, false, err
 	}
-
+	fmt.Println("birth day", user.Birthday)
 	if nickname.Valid {
 		user.Username = nickname.String
 	} else {
@@ -45,10 +45,11 @@ func GetUserByEmail(req model.LoginRequest) (model.User, error) {
 		user.AvatarPath = ""
 	}
 
-	return user, nil
+	return user, true, nil
 }
 
 func InsertSession(sessionID string, user model.User, expiresAt time.Time) error {
+	fmt.Println("Inserting session:", sessionID, user.ID, expiresAt)
 	_, err := database.DB.Exec("INSERT INTO sessions (session_token, user_id, expires_at) VALUES (?, ?, ?)", sessionID, user.ID, expiresAt)
 	return err
 }
