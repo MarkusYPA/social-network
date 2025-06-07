@@ -40,7 +40,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
 
                 // Handle 'new_notification'
                 if (message.value.type === 'new_notification') {
-                    console.log('Received new_notification message content:', message.value.content);
+                    //console.log('Received new_notification message content:', message.value.content);
                     const notificationStore = useNotificationStore(); // Get store instance
                     let newNotificationData;
                     try {

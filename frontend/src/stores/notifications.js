@@ -24,12 +24,14 @@ export const useNotificationStore = defineStore('notifications', () => {
                 throw new Error(`Failed to fetch notifications: ${response.statusText}`);
             }
             const data = await response.json(); // Expects an array of notification objects
-            
+
             notifications.value = data;
-            
+
             // Calculate unread count from the fetched notifications
-            unreadCount.value = data.filter(n => !n.is_read).length; // Simplified unread count
-            console.log('Notifications fetched and store updated:', notifications.value.length, 'total,', unreadCount.value, 'unread');
+            if (notifications.value) {
+                unreadCount.value = data.filter(n => !n.is_read).length; // Simplified unread count
+            }
+            //console.log('Notifications fetched and store updated:', notifications.value.length, 'total,', unreadCount.value, 'unread');
 
         } catch (error) {
             console.error('Error in fetchNotifications:', error);
@@ -43,16 +45,16 @@ export const useNotificationStore = defineStore('notifications', () => {
      * @param {object} newNotification - The new notification object.
      */
     async function addNotification(newNotification) { // Made async
-        notifications.value.unshift(newNotification); 
+        notifications.value.unshift(newNotification);
         if (!newNotification.is_read) {
             unreadCount.value++;
         }
-        console.log('New notification added locally, unread count:', unreadCount.value);
+        //console.log('New notification added locally, unread count:', unreadCount.value);
 
         try {
-            console.log('Refreshing all notifications to update pending statuses...');
+            //console.log('Refreshing all notifications to update pending statuses...');
             await fetchNotifications(); // Call fetchNotifications to refresh all
-            console.log('Notifications refreshed after new one arrived.');
+            //console.log('Notifications refreshed after new one arrived.');
         } catch (error) {
             console.error('Error refreshing notifications after new one arrived:', error);
             // Decide if any specific error handling is needed here for the fetchNotifications failure
@@ -80,12 +82,16 @@ export const useNotificationStore = defineStore('notifications', () => {
      * @param {number} notificationId - The ID of the notification to mark as read.
      */
     async function markAsRead(notificationId) {
+        //console.log("marking notification", notificationId, "as read")
+
         try {
             const response = await fetch(`${apiUrl}/api/notifications/${notificationId}/read`, { // Corrected API URL
                 method: 'POST',
                 credentials: 'include',
             });
+
             if (!response.ok) {
+                console.log("marking notification", notificationId, "as read failed miserably")
                 throw new Error(`Failed to mark notification ${notificationId} as read: ${response.statusText}`);
             }
 
@@ -97,13 +103,14 @@ export const useNotificationStore = defineStore('notifications', () => {
                     unreadCount.value--;
                 }
             }
-            console.log(`Notification ${notificationId} marked as read. Unread count:`, unreadCount.value);
+            //console.log(`Notification ${notificationId} marked as read. Unread count:`, unreadCount.value);
 
         } catch (error) {
+            console.log("Notification", notificationId, "as read failed at first hurdle:", error)
             console.error(`Error in markAsRead for notification ${notificationId}:`, error);
         }
     }
-    
+
     /**
      * Marks all notifications as read on the backend and updates the store.
      */
@@ -113,7 +120,7 @@ export const useNotificationStore = defineStore('notifications', () => {
             // For now, let's assume it might not exist and we'll mark them one by one if needed,
             // or the user implements a dedicated backend endpoint.
             // This is a placeholder for a more efficient backend call.
-            
+
             // Fallback: Iterate and mark read if backend doesn't support /read-all
             // This is inefficient and primarily for demonstration if a bulk endpoint is missing.
             // A real implementation should push for a backend /read-all endpoint.
@@ -122,15 +129,15 @@ export const useNotificationStore = defineStore('notifications', () => {
                 if (!notification.is_read) {
                     // Temporarily, just call individual markAsRead
                     // In a real app, this loop should be replaced by a single API call
-                    await markAsRead(notification.id); 
+                    await markAsRead(notification.id);
                 }
             }
             // After all are processed, recount or set to 0
             unreadCount.value = notifications.value.filter(n => !n.is_read).length;
             if (unreadCount.value === 0) {
-                 console.log('All notifications marked as read.');
+                console.log('All notifications marked as read.');
             } else {
-                 console.warn('Mark all as read attempted, but some still unread. Unread count:', unreadCount.value);
+                console.warn('Mark all as read attempted, but some still unread. Unread count:', unreadCount.value);
             }
 
 

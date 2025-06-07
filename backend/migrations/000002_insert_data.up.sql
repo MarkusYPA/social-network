@@ -2,7 +2,7 @@
 
 -- Insert users (14 columns, all specified)
 INSERT INTO users (email, password_hash, first_name, last_name, date_of_birth, avatar_path, nickname, about_me, is_public, created_at, updated_at, updated_by, status) VALUES
-('emma.bauer@example.com', '$2a$10$RhuX9T/SPdJ8vMxGvYcjaufLkseSRvBS5VHwFChHL4W4AwPRlS8bC', 'Emma', 'Bauer', '1993-03-22', 'data/uploads/avatars/1747642156208195000.jpeg', 'EmB', 'Loves painting and coffee shops.', TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 'enable'),
+('emma.bauer@example.com', '$2a$10$RhuX9T/SPdJ8vMxGvYcjaufLkseSRvBS5VHwFChHL4W4AwPRlS8bC', 'Emma', 'Bauer', '1993-03-22', 'data/uploads/avatars/1747642156208195000.jpeg', 'EmB', 'Loves painting and coffee shops.', FALSE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 'enable'),
 ('liam.muller@example.com', '$2a$10$RhuX9T/SPdJ8vMxGvYcjaufLkseSRvBS5VHwFChHL4W4AwPRlS8bC', 'Liam', 'Müller', '1987-09-14', 'data/uploads/avatars/1747642184916489000.webp', 'LiamM', 'Avid cyclist and tech enthusiast.', FALSE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 'enable'),
 ('sofia.vogel@example.com', '$2a$10$RhuX9T/SPdJ8vMxGvYcjaufLkseSRvBS5VHwFChHL4W4AwPRlS8bC', 'Sofia', 'Vogel', '1995-06-30', 'data/uploads/avatars/1747642206647198000.jpeg', 'Sofi', 'Enjoys yoga and travel.', TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 'enable'),
 ('noah.fischer@example.com', '$2a$10$RhuX9T/SPdJ8vMxGvYcjaufLkseSRvBS5VHwFChHL4W4AwPRlS8bC', 'Noah', 'Fischer', '1990-12-05', 'data/uploads/avatars/1747642227982390000.jpeg', 'NoahF', 'Music lover and amateur chef.', FALSE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 'enable'),
@@ -38,9 +38,9 @@ INSERT INTO posts (user_id, content, image_path, privacy_level, created_at, upda
 -- Insert comments (8 columns, image_path always included)
 INSERT INTO comments (post_id, user_id, content, image_path, created_at, updated_by, status) VALUES
 (1, 2, 'Wow, that sunset sounds amazing!', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
-(2, 6, 'What’s the recipe? Looks tasty!', '/data/default/postdefault01.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
+(2, 6, 'What’s the recipe? Looks tasty!', '/data/uploads/comments/7cc8201b-abc2-48d3-95d6-a4109e9c4b51.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
 (3, 5, 'Love the colors in your painting!', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
-(4, 8, 'Share the cafe name, please!', '/data/default/postdefault01.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
+(4, 8, 'Share the cafe name, please!', '/data/uploads/comments/157149b2-d0cb-4451-a3a3-3c9dbdedf4e2.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
 (5, 7, 'Which trail are you hiking?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (7, 9, 'I recommend "Dune" if you haven’t read it!', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (9, 11, 'That bread looks delicious!', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
@@ -59,8 +59,8 @@ INSERT INTO follow_requests (follower_id, followed_id, approval_status, created_
 (7, 4, 'accepted', CURRENT_TIMESTAMP),
 (9, 6, 'declined', CURRENT_TIMESTAMP),
 (11, 8, 'pending', CURRENT_TIMESTAMP),
-(13, 5, 'accepted', CURRENT_TIMESTAMP),
-(1, 9, 'pending', CURRENT_TIMESTAMP),
+(13, 8, 'accepted', CURRENT_TIMESTAMP),
+(1, 13, 'pending', CURRENT_TIMESTAMP),
 (11, 13, 'accepted', CURRENT_TIMESTAMP),
 (3, 11, 'pending', CURRENT_TIMESTAMP);
 
@@ -128,7 +128,8 @@ INSERT INTO group_members (group_id, user_id, approval_status, created_at, updat
 (14, 10, 'accepted', CURRENT_TIMESTAMP, NULL, 'enable'),
 (15, 1, 'accepted', CURRENT_TIMESTAMP, NULL, 'enable'),
 (15, 4, 'accepted', CURRENT_TIMESTAMP, NULL, 'enable'),
-(15, 6, 'accepted', CURRENT_TIMESTAMP, NULL, 'enable');
+(15, 6, 'accepted', CURRENT_TIMESTAMP, NULL, 'enable'),
+(1, 1, 'accepted', CURRENT_TIMESTAMP, NULL, 'enable');
 
 -- Insert group invitations (8 columns)
 INSERT INTO group_invitations (group_id, user_id, inviter_id, approval_status, created_at, updated_by, status) VALUES
@@ -154,14 +155,14 @@ INSERT INTO group_invitations (group_id, user_id, inviter_id, approval_status, c
 INSERT INTO group_posts (group_id, user_id, content, image_path, created_at, updated_by, status) VALUES
 (1, 2, 'Planning a hike this weekend, anyone join?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (1, 7, 'Best camping spots near the city?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
-(1, 13, 'Just saw a rare bird on my last hike!', '/data/default/postdefault01.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
+(1, 13, 'Just saw a rare bird on my last hike!', '/data/uploads/posts/2e9214de-645b-4c26-9bb1-78eaa1550761.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
 (1, 2, 'Any tips for beginner hikers?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (1, 7, 'Love the autumn colors in the forest.', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (1, 1, 'Group hike next month, who’s in?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (1, 2, 'Found a great trail guide online.', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (1, 7, 'Anyone tried wild foraging?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (1, 13, 'Need recommendations for hiking boots.', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
-(1, 1, 'Sunrise hikes are the best!', '/data/default/postdefault01.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
+(1, 1, 'Sunrise hikes are the best!', '/data/uploads/posts/4b5f8ac9-d5e3-40bb-b88e-6ba0f351fc2a.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
 (1, 2, 'Anyone been to the national park recently?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (1, 7, 'Tips for staying safe in bear country?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (1, 13, 'Favorite nature podcasts?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
@@ -171,14 +172,14 @@ INSERT INTO group_posts (group_id, user_id, content, image_path, created_at, upd
 
 -- Group 2: Art Enthusiasts (18 posts)
 INSERT INTO group_posts (group_id, user_id, content, image_path, created_at, updated_by, status) VALUES
-(2, 5, 'Sharing my latest sketch. Feedback welcome!', '/data/default/postdefault01.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
-(2, 8, 'New painting in progress.', '/data/default/postdefault01.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
+(2, 5, 'Sharing my latest sketch. Feedback welcome!', '/data/uploads/posts/4e6cfacf-b209-4f72-90aa-c2cb9996d291.webp', CURRENT_TIMESTAMP, NULL, 'enable'),
+(2, 8, 'New painting in progress.', '/data/uploads/posts/5f50abfa-b572-4917-8cbe-6ed4c20cad4a.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
 (2, 1, 'Trying oil paints for the first time.', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (2, 5, 'Any watercolor tutorials you recommend?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (2, 8, 'Visited an art gallery today, so inspired!', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (2, 1, 'Working on a portrait, tips appreciated.', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (2, 5, 'Best brushes for acrylic painting?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
-(2, 8, 'Just finished a digital art piece.', '/data/default/postdefault01.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
+(2, 8, 'Just finished a digital art piece.', '/data/uploads/posts/6ea40dca-c490-4e1a-87e8-1cc789b98097.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
 (2, 1, 'Anyone doing inktober this year?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (2, 5, 'Art challenge: draw something inspired by nature.', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (2, 8, 'What’s your favorite art style?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
@@ -210,18 +211,18 @@ INSERT INTO group_posts (group_id, user_id, content, image_path, created_at, upd
 
 -- Group 4: Photography Hub (17 posts)
 INSERT INTO group_posts (group_id, user_id, content, image_path, created_at, updated_by, status) VALUES
-(4, 2, 'Captured a sunset yesterday.', '/data/default/postdefault01.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
+(4, 2, 'Captured a sunset yesterday.', '/data/uploads/posts/37f5688d-0bc0-419f-9786-35abad695ea9.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
 (4, 6, 'Tips for low-light photography?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (4, 12, 'Best lenses for portrait shots?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (4, 2, 'Editing software recommendations?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
-(4, 6, 'Sharing my latest street photography.', '/data/default/postdefault01.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
+(4, 6, 'Sharing my latest street photography.', '/data/uploads/posts/49b992e7-da8a-4f05-937f-bb382a21ce92.webp', CURRENT_TIMESTAMP, NULL, 'enable'),
 (4, 12, 'Anyone tried drone photography?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (4, 2, 'Photography workshop next month!', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (4, 6, 'How to get crisp macro shots?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (4, 12, 'Favorite photo spots in the city?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (4, 2, 'Just got a new tripod, love it!', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (4, 6, 'Black and white vs. color, thoughts?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
-(4, 12, 'Sharing a time-lapse project.', '/data/default/postdefault01.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
+(4, 12, 'Sharing a time-lapse project.', '/data/uploads/posts/77ca9bf9-2150-4a70-9479-5a8c3591581c.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
 (4, 2, 'Anyone doing 365 photo challenges?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (4, 6, 'Best way to organize photos?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (4, 12, 'Night sky photography tips?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
@@ -249,11 +250,11 @@ INSERT INTO group_posts (group_id, user_id, content, image_path, created_at, upd
 
 -- Group 6: Baking Buddies (18 posts)
 INSERT INTO group_posts (group_id, user_id, content, image_path, created_at, updated_by, status) VALUES
-(6, 11, 'Sourdough loaf turned out great!', '/data/default/postdefault01.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
+(6, 11, 'Sourdough loaf turned out great!', '/data/uploads/posts/239f5552-cefc-42e2-9032-cb88d498ad7a.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
 (6, 14, 'Best cookie recipes?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (6, 5, 'Tips for perfect pie crust?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (6, 11, 'Baking a cake for a party, ideas?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
-(6, 14, 'Sharing my muffin recipe.', '/data/default/postdefault01.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
+(6, 14, 'Sharing my muffin recipe.', '/data/uploads/posts/8376db0d-1770-46bb-9f14-e1c271da6c91.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
 (6, 5, 'Gluten-free baking tips?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (6, 11, 'Favorite baking tools?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (6, 14, 'Just made croissants, so proud!', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
@@ -261,7 +262,7 @@ INSERT INTO group_posts (group_id, user_id, content, image_path, created_at, upd
 (6, 11, 'Baking class next weekend, join us!', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (6, 14, 'Best frosting techniques?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (6, 5, 'Anyone tried vegan baking?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
-(6, 11, 'Sharing my brownie recipe.', '/data/default/postdefault01.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
+(6, 11, 'Sharing my brownie recipe.', '/data/uploads/posts/38948d9f-d837-4a93-a8e2-5560d6793f9d.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
 (6, 14, 'Bread baking tips for beginners?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (6, 5, 'Favorite bakeware brands?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (6, 11, 'Planning a bake sale, any tips?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
@@ -279,7 +280,7 @@ INSERT INTO group_posts (group_id, user_id, content, image_path, created_at, upd
 (7, 4, 'Group trip planning, ideas?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (7, 9, 'Best travel podcasts?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (7, 2, 'Anyone been to Iceland?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
-(7, 4, 'Sharing my travel journal.', '/data/default/postdefault01.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
+(7, 4, 'Sharing my travel journal.', '/data/uploads/posts/39606ad7-7a17-424c-ba7c-2626d1fa6e74.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
 (7, 9, 'Tips for jet lag?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (7, 2, 'Favorite travel blogs?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (7, 4, 'Planning a road trip, suggestions?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
@@ -288,11 +289,11 @@ INSERT INTO group_posts (group_id, user_id, content, image_path, created_at, upd
 
 -- Group 8: Music Makers (16 posts)
 INSERT INTO group_posts (group_id, user_id, content, image_path, created_at, updated_by, status) VALUES
-(8, 8, 'New song I’m working on.', '/data/default/postdefault01.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
+(8, 8, 'New song I’m working on.', '/data/uploads/posts/990483d8-79be-48c9-b053-385ea18ace4f.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
 (8, 13, 'Best guitars for beginners?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (8, 6, 'Favorite music genres?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (8, 8, 'Just learned a new chord progression.', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
-(8, 13, 'Sharing my latest cover.', '/data/default/postdefault01.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
+(8, 13, 'Sharing my latest cover.', '/data/uploads/posts/9584590f-8625-413c-9e77-c353624cbed4.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
 (8, 6, 'Tips for stage performance?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (8, 8, 'Anyone play the drums?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (8, 13, 'Music theory resources?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
@@ -301,7 +302,7 @@ INSERT INTO group_posts (group_id, user_id, content, image_path, created_at, upd
 (8, 13, 'Favorite concert memories?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (8, 6, 'Just got new studio monitors!', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (8, 8, 'Tips for writing lyrics?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
-(8, 13, 'Sharing my playlist.', '/data/default/postdefault01.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
+(8, 13, 'Sharing my playlist.', '/data/uploads/posts/b939624b-3114-4883-adff-f10143a16b22.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
 (8, 6, 'Anyone in a band?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (8, 8, 'Music open mic next week!', NULL, CURRENT_TIMESTAMP, NULL, 'enable');
 
@@ -316,7 +317,7 @@ INSERT INTO group_posts (group_id, user_id, content, image_path, created_at, upd
 (9, 13, 'Just built a new PC!', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (9, 1, 'Cloud computing trends?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (9, 7, 'Best coding bootcamps?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
-(9, 13, 'Sharing my GitHub project.', '/data/default/postdefault01.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
+(9, 13, 'Sharing my GitHub project.', '/data/uploads/posts/bbe6b7ca-3c67-4d20-9a2c-bdf0be7950d8.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
 (9, 1, 'Anyone into robotics?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (9, 7, 'Tips for tech interviews?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (9, 13, 'Favorite tech YouTubers?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
@@ -331,7 +332,7 @@ INSERT INTO group_posts (group_id, user_id, content, image_path, created_at, upd
 (10, 11, 'Tips for meditation beginners?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (10, 4, 'Best yoga mats?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (10, 6, 'Sharing my mindfulness journal.', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
-(10, 11, 'Just tried a new yoga flow.', '/data/default/postdefault01.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
+(10, 11, 'Just tried a new yoga flow.', '/data/uploads/posts/c6c67abe-8c6f-42ca-a09b-14b285e39fea.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
 (10, 4, 'Favorite meditation apps?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (10, 6, 'Group yoga session this weekend!', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (10, 11, 'How to stay consistent with yoga?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
@@ -345,11 +346,11 @@ INSERT INTO group_posts (group_id, user_id, content, image_path, created_at, upd
 
 -- Group 11: Gamers Guild (16 posts)
 INSERT INTO group_posts (group_id, user_id, content, image_path, created_at, updated_by, status) VALUES
-(11, 10, 'New game I’m playing, love it!', '/data/default/postdefault01.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
+(11, 10, 'New game I’m playing, love it!', '/data/uploads/posts/c98cfb51-2a46-4a2d-bafa-6485562bb0f6.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
 (11, 5, 'Best gaming headsets?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (11, 8, 'Anyone play RPGs?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (11, 10, 'Tips for streaming on Twitch?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
-(11, 5, 'Sharing my gaming setup.', '/data/default/postdefault01.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
+(11, 5, 'Sharing my gaming setup.', '/data/uploads/posts/c366c1cb-4e20-4ec6-99f8-def2fd2ade59.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
 (11, 8, 'Favorite esports teams?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (11, 10, 'Just beat a tough boss!', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (11, 5, 'Best co-op games?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
@@ -357,23 +358,23 @@ INSERT INTO group_posts (group_id, user_id, content, image_path, created_at, upd
 (11, 10, 'Tips for game modding?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (11, 5, 'Favorite retro games?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (11, 8, 'Just got a new GPU!', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
-(11, 10, 'Sharing my speedrun.', '/data/default/postdefault01.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
+(11, 10, 'Sharing my speedrun.', '/data/uploads/posts/cb7876f3-c216-4383-9f7e-f8ce2448ab8e.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
 (11, 5, 'Best gaming keyboards?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (11, 8, 'Anyone play survival games?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (11, 10, 'Game night next week!', NULL, CURRENT_TIMESTAMP, NULL, 'enable');
 
 -- Group 12: Plant Parents (18 posts)
 INSERT INTO group_posts (group_id, user_id, content, image_path, created_at, updated_by, status) VALUES
-(12, 14, 'New monstera cutting!', '/data/default/postdefault01.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
+(12, 14, 'New monstera cutting!', '/data/uploads/posts/ed4ead42-4ed0-48c2-a683-01ad8c94ef7a.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
 (12, 2, 'Tips for succulent care?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (12, 9, 'Best pots for indoor plants?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
-(12, 14, 'Sharing my plant shelf.', '/data/default/postdefault01.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
+(12, 14, 'Sharing my plant shelf.', '/data/uploads/posts/f7f67a2d-477c-469e-8170-890cbcf3371e.webp', CURRENT_TIMESTAMP, NULL, 'enable'),
 (12, 2, 'How to deal with pests?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (12, 9, 'Favorite plant shops?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (12, 14, 'Just repotted my fiddle leaf fig.', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (12, 2, 'Tips for low-light plants?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (12, 9, 'Anyone propagate plants?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
-(12, 14, 'Sharing my terrarium.', '/data/default/postdefault01.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
+(12, 14, 'Sharing my terrarium.', '/data/uploads/posts/f9e3f143-6702-46b2-b141-efce381b0747.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
 (12, 2, 'Best fertilizers for houseplants?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (12, 9, 'Just got a new orchid!', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (12, 14, 'Tips for plant watering schedules?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
@@ -403,16 +404,16 @@ INSERT INTO group_posts (group_id, user_id, content, image_path, created_at, upd
 
 -- Group 14: Code Crafters (16 posts)
 INSERT INTO group_posts (group_id, user_id, content, image_path, created_at, updated_by, status) VALUES
-(14, 12, 'New Python project I’m working on.', '/data/default/postdefault01.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
+(14, 12, 'New Python project I’m working on.', '/data/uploads/posts/f74ada9b-5c91-4bcc-b6f6-de590e9c2dc7.png', CURRENT_TIMESTAMP, NULL, 'enable'),
 (14, 7, 'Best IDEs for coding?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (14, 10, 'Tips for debugging code?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
-(14, 10, 'Sharing my web app.', '/data/default/postdefault01.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
+(14, 10, 'Sharing my web app.', '/data/uploads/posts/0d3e702f-8f6f-4110-8610-5f6fa4f034de.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
 (14, 7, 'Favorite coding tutorials?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (14, 10, 'Just learned a new algorithm.', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (14, 12, 'Planning a coding meetup.', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (14, 7, 'Best resources for learning JavaScript?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (14, 10, 'Anyone use GitLab?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
-(14, 12, 'Sharing my CLI tool.', '/data/default/postdefault01.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
+(14, 12, 'Sharing my CLI tool.', '/data/uploads/posts/1deffb0c-6b26-48a9-b074-3e7be6a675b6.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
 (14, 7, 'Tips for clean code?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (14, 10, 'Favorite coding podcasts?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (14, 12, 'Just deployed my first app!', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
@@ -430,7 +431,7 @@ INSERT INTO group_posts (group_id, user_id, content, image_path, created_at, upd
 (15, 6, 'Best coffee makers?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (15, 1, 'Planning a coffee tasting event.', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (15, 4, 'Favorite coffee pairings?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
-(15, 6, 'Just tried a new roast.', '/data/default/postdefault01.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
+(15, 6, 'Just tried a new roast.', '/data/uploads/posts/b45d820c-9dd1-485b-88d1-dd61351bdd6c.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
 (15, 1, 'Tips for latte art?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (15, 4, 'Best decaf options?', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (15, 6, 'Sharing my coffee setup.', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
@@ -443,19 +444,19 @@ INSERT INTO group_posts (group_id, user_id, content, image_path, created_at, upd
 -- Insert group comments (7 columns, image_path always included)
 INSERT INTO group_comments (group_post_id, user_id, content, image_path, created_at, updated_by, status) VALUES
 (1, 1, 'Count me in for the hike!', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
-(2, 7, 'Great camping tips!', '/data/default/postdefault01.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
+(2, 7, 'Great camping tips!', '/data/uploads/comments/b2f70289-bd01-4c73-9ba1-6a6fe82373bd.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
 (17, 8, 'Love the shading in your sketch!', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
-(18, 1, 'Awesome digital art!', '/data/default/postdefault01.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
+(18, 1, 'Awesome digital art!', '/data/uploads/comments/b57ee776-35d9-45a0-a3c2-edec51f98b0c.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
 (33, 9, '"1984" is so thought-provoking!', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (49, 6, 'That sunset shot is stunning!', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
-(50, 12, 'Love the street photography!', '/data/default/postdefault01.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
+(50, 12, 'Love the street photography!', '/data/uploads/comments/b3119bcc-ce09-4e36-a0a2-eb6b9b9f53f3.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
 (65, 10, 'Congrats on the PR!', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (81, 5, 'That loaf looks perfect!', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
-(82, 14, 'Those muffins look delicious!', '/data/default/postdefault01.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
+(82, 14, 'Those muffins look delicious!', '/data/uploads/comments/f56d62d4-3c1d-46ad-8196-167f1e2af361.png', CURRENT_TIMESTAMP, NULL, 'enable'),
 (97, 9, 'Italy sounds amazing!', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (113, 6, 'Love that chord progression!', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (129, 7, 'VR gaming is so immersive!', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
-(130, 11, 'Cool app idea!', '/data/default/postdefault01.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
+(130, 11, 'Cool app idea!', '/data/uploads/comments/fb0ac7e2-2bf7-4d13-9ca3-0291aed637d7.jpg', CURRENT_TIMESTAMP, NULL, 'enable'),
 (145, 11, 'Love that yoga flow!', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (161, 8, 'Great gaming setup!', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
 (177, 9, 'That monstera is thriving!', NULL, CURRENT_TIMESTAMP, NULL, 'enable'),
@@ -483,51 +484,52 @@ INSERT INTO events (group_id, creator_id, title, description, event_datetime, cr
 
 -- Insert event responses (5 columns)
 INSERT INTO event_responses (event_id, user_id, response, created_at) VALUES
-(1, 2, 'pending', CURRENT_TIMESTAMP),
-(1, 7, 'pending', CURRENT_TIMESTAMP),
-(1, 13, 'pending', CURRENT_TIMESTAMP),
+(1, 2, 'going', CURRENT_TIMESTAMP),
+(1, 7, 'going', CURRENT_TIMESTAMP),
+(1, 13, 'not_going', CURRENT_TIMESTAMP),
 (2, 5, 'pending', CURRENT_TIMESTAMP),
-(2, 8, 'pending', CURRENT_TIMESTAMP),
-(2, 1, 'pending', CURRENT_TIMESTAMP),
+(2, 8, 'going', CURRENT_TIMESTAMP),
+(2, 1, 'not_going', CURRENT_TIMESTAMP),
 (3, 9, 'pending', CURRENT_TIMESTAMP),
-(3, 4, 'pending', CURRENT_TIMESTAMP),
-(3, 11, 'pending', CURRENT_TIMESTAMP),
+(3, 4, 'going', CURRENT_TIMESTAMP),
+(3, 11, 'not_going', CURRENT_TIMESTAMP),
 (4, 2, 'pending', CURRENT_TIMESTAMP),
-(4, 6, 'pending', CURRENT_TIMESTAMP),
-(4, 12, 'pending', CURRENT_TIMESTAMP),
+(4, 6, 'not_going', CURRENT_TIMESTAMP),
+(4, 12, 'going', CURRENT_TIMESTAMP),
 (5, 7, 'pending', CURRENT_TIMESTAMP),
-(5, 10, 'pending', CURRENT_TIMESTAMP),
-(5, 3, 'pending', CURRENT_TIMESTAMP),
+(5, 10, 'not_going', CURRENT_TIMESTAMP),
+(5, 3, 'going', CURRENT_TIMESTAMP),
 (6, 11, 'pending', CURRENT_TIMESTAMP),
-(6, 14, 'pending', CURRENT_TIMESTAMP),
-(6, 5, 'pending', CURRENT_TIMESTAMP),
+(6, 14, 'going', CURRENT_TIMESTAMP),
+(6, 5, 'going', CURRENT_TIMESTAMP),
 (7, 4, 'pending', CURRENT_TIMESTAMP),
-(7, 9, 'pending', CURRENT_TIMESTAMP),
-(7, 2, 'pending', CURRENT_TIMESTAMP),
-(8, 8, 'going', CURRENT_TIMESTAMP),
+(7, 9, 'going', CURRENT_TIMESTAMP),
+(7, 2, 'not_going', CURRENT_TIMESTAMP),
+(8, 8, 'pending', CURRENT_TIMESTAMP),
 (8, 13, 'going', CURRENT_TIMESTAMP),
 (8, 6, 'going', CURRENT_TIMESTAMP),
-(9, 13, 'going', CURRENT_TIMESTAMP),
+(9, 13, 'pending', CURRENT_TIMESTAMP),
 (9, 1, 'going', CURRENT_TIMESTAMP),
 (9, 7, 'not_going', CURRENT_TIMESTAMP),
-(10, 6, 'going', CURRENT_TIMESTAMP),
+(10, 6, 'pending', CURRENT_TIMESTAMP),
 (10, 11, 'going', CURRENT_TIMESTAMP),
 (10, 4, 'going', CURRENT_TIMESTAMP),
-(11, 10, 'going', CURRENT_TIMESTAMP),
+(11, 10, 'pending', CURRENT_TIMESTAMP),
 (11, 5, 'going', CURRENT_TIMESTAMP),
 (11, 8, 'not_going', CURRENT_TIMESTAMP),
-(12, 14, 'going', CURRENT_TIMESTAMP),
+(12, 14, 'pending', CURRENT_TIMESTAMP),
 (12, 2, 'going', CURRENT_TIMESTAMP),
 (12, 9, 'going', CURRENT_TIMESTAMP),
-(13, 3, 'going', CURRENT_TIMESTAMP),
+(13, 3, 'pending', CURRENT_TIMESTAMP),
 (13, 12, 'going', CURRENT_TIMESTAMP),
 (13, 1, 'not_going', CURRENT_TIMESTAMP),
-(14, 12, 'going', CURRENT_TIMESTAMP),
+(14, 12, 'pending', CURRENT_TIMESTAMP),
 (14, 7, 'going', CURRENT_TIMESTAMP),
 (14, 10, 'going', CURRENT_TIMESTAMP),
-(15, 1, 'going', CURRENT_TIMESTAMP),
+(15, 1, 'pending', CURRENT_TIMESTAMP),
 (15, 4, 'going', CURRENT_TIMESTAMP),
-(15, 6, 'going', CURRENT_TIMESTAMP);
+(15, 6, 'going', CURRENT_TIMESTAMP),
+(1, 1, 'pending', CURRENT_TIMESTAMP);
 
 -- Insert messages (8 columns, 20-message dialogue between Emma and Yusuf, plus 15 more)
 INSERT INTO messages (sender_id, receiver_id, content, created_at, updated_at, updated_by, status) VALUES
@@ -600,27 +602,27 @@ INSERT INTO notifications (user_id, type, follow_req_id, group_invite_id, group_
 (4, 'follow_request', 8, NULL, NULL, NULL, 'Mia wants to follow you.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'delete'), -- accepted
 (6, 'follow_request', 9, NULL, NULL, NULL, 'Lena wants to follow you.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'delete'),    -- declined
 (8, 'follow_request', 10, NULL, NULL, NULL, 'Amina wants to follow you.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
-(5, 'follow_request', 11, NULL, NULL, NULL, 'Amina wants to follow you.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'delete'), -- accepted
-(9, 'follow_request', 12, NULL, NULL, NULL, 'Emma wants to follow you.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
+(8, 'follow_request', 11, NULL, NULL, NULL, 'Amina wants to follow you.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'delete'), -- accepted
+(13, 'follow_request', 12, NULL, NULL, NULL, 'Emma wants to follow you.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
 (13, 'follow_request', 13, NULL, NULL, NULL, 'Amina wants to follow you.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'delete'), -- accepted
 (11, 'follow_request', 14, NULL, NULL, NULL, 'Sofia wants to follow you.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
 -- Group invitation notifications (corrected to use group_invite_id)
-(3, 'group_invitation', NULL, 1, 1, NULL, 'You’ve been invited to Nature Lovers.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
-(6, 'group_invitation', NULL, 2, 2, NULL, 'You’ve been invited to Art Enthusiasts.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'delete'), -- accepted
-(11, 'group_invitation', NULL, 3, 3, NULL, 'You’ve been invited to Book Club.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'delete'),      -- declined
-(13, 'group_invitation', NULL, 4, 4, NULL, 'You’ve been invited to Photography Hub.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
-(1, 'group_invitation', NULL, 5, 5, NULL, 'You’ve been invited to Fitness Fanatics.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
-(8, 'group_invitation', NULL, 6, 6, NULL, 'You’ve been invited to Baking Buddies.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
-(5, 'group_invitation', NULL, 7, 7, NULL, 'You’ve been invited to Travel Explorers.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
-(9, 'group_invitation', NULL, 8, 8, NULL, 'You’ve been invited to Music Makers.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
-(2, 'group_invitation', NULL, 9, 9, NULL, 'You’ve been invited to Tech Talk.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
-(3, 'group_invitation', NULL, 10, 10, NULL, 'You’ve been invited to Yoga & Meditation.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
-(4, 'group_invitation', NULL, 11, 11, NULL, 'You’ve been invited to Gamers Guild.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
-(7, 'group_invitation', NULL, 12, 12, NULL, 'You’ve been invited to Plant Parents.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
-(11, 'group_invitation', NULL, 13, 13, NULL, 'You’ve been invited to History Buffs.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
-(1, 'group_invitation', NULL, 14, 14, NULL, 'You’ve been invited to Code Crafters.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
-(11, 'group_invitation', NULL, 15, 15, NULL, 'You’ve been invited to group 14.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
-(8, 'group_invitation', NULL, 16, 16, NULL, 'You’ve been invited to Coffee Connoisseurs.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
+(3, 'group_invitation', NULL, 1, NULL, NULL, 'You’ve been invited to Nature Lovers.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
+(6, 'group_invitation', NULL, 2, NULL, NULL, 'You’ve been invited to Art Enthusiasts.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'delete'), -- accepted
+(11, 'group_invitation', NULL, 3, NULL, NULL, 'You’ve been invited to Book Club.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'delete'),      -- declined
+(13, 'group_invitation', NULL, 4, NULL, NULL, 'You’ve been invited to Photography Hub.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
+(1, 'group_invitation', NULL, 5, NULL, NULL, 'You’ve been invited to Fitness Fanatics.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
+(8, 'group_invitation', NULL, 6, NULL, NULL, 'You’ve been invited to Baking Buddies.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
+(5, 'group_invitation', NULL, 7, NULL, NULL, 'You’ve been invited to Travel Explorers.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
+(9, 'group_invitation', NULL, 8, NULL, NULL, 'You’ve been invited to Music Makers.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
+(2, 'group_invitation', NULL, 9, NULL, NULL, 'You’ve been invited to Tech Talk.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
+(3, 'group_invitation', NULL, 10, NULL, NULL, 'You’ve been invited to Yoga & Meditation.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
+(4, 'group_invitation', NULL, 11, NULL, NULL, 'You’ve been invited to Gamers Guild.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
+(7, 'group_invitation', NULL, 12, NULL, NULL, 'You’ve been invited to Plant Parents.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
+(11, 'group_invitation', NULL, 13, NULL, NULL, 'You’ve been invited to History Buffs.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
+(1, 'group_invitation', NULL, 14, NULL, NULL, 'You’ve been invited to Code Crafters.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
+(11, 'group_invitation', NULL, 15, NULL, NULL, 'You’ve been invited to group 14.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
+(8, 'group_invitation', NULL, 16, NULL, NULL, 'You’ve been invited to Coffee Connoisseurs.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
 -- Group join request notifications (aligned with group_members pending requests)
 (1, 'group_join_request', NULL, NULL, 3, NULL, 'Amina wants to join Nature Lovers.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
 -- (5, 'group_join_request', NULL, NULL, 2, NULL, 'Mia wants to join Art Enthusiasts.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'), -- cant find match to this
@@ -631,21 +633,21 @@ INSERT INTO notifications (user_id, type, follow_req_id, group_invite_id, group_
 (10, 'group_join_request', NULL, NULL, 33, NULL, 'Elias wants to join Gamers Guild.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
 (3, 'group_join_request', NULL, NULL, 39, NULL, 'Emma wants to join History Buffs.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
 -- Event creation notifications (sent to group creators)
-(1, 'event_creation', NULL, NULL, 1, 1, 'New event: Group Hike in Nature Lovers.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
-(5, 'event_creation', NULL, NULL, 2, 2, 'New event: Art Workshop in Art Enthusiasts.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
-(9, 'event_creation', NULL, NULL, 3, 3, 'New event: Book Discussion in Book Club.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
-(2, 'event_creation', NULL, NULL, 4, 4, 'New event: Photography Walk in Photography Hub.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
-(7, 'event_creation', NULL, NULL, 5, 5, 'New event: Group Run in Fitness Fanatics.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
-(11, 'event_creation', NULL, NULL, 6, 6, 'New event: Baking Class in Baking Buddies.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
-(4, 'event_creation', NULL, NULL, 7, 7, 'New event: Travel Meetup in Travel Explorers.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
-(8, 'event_creation', NULL, NULL, 8, 8, 'New event: Jam Session in Music Makers.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
-(13, 'event_creation', NULL, NULL, 9, 9, 'New event: Tech Talk in Tech Talk.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
-(6, 'event_creation', NULL, NULL, 10, 10, 'New event: Yoga Retreat in Yoga & Meditation.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
-(10, 'event_creation', NULL, NULL, 11, 11, 'New event: Game Night in Gamers Guild.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
-(14, 'event_creation', NULL, NULL, 12, 12, 'New event: Plant Swap in Plant Parents.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
-(3, 'event_creation', NULL, NULL, 13, 13, 'New event: History Trivia in History Buffs.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
-(12, 'event_creation', NULL, NULL, 14, 14, 'New event: Code Hackathon in Code Crafters.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
-(1, 'event_creation', NULL, NULL, 15, 15, 'New event: Coffee Tasting in Coffee Connoisseurs.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable');
+(1, 'event_creation', NULL, NULL, NULL, 1, 'New event: Group Hike in Nature Lovers.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
+(5, 'event_creation', NULL, NULL, NULL, 2, 'New event: Art Workshop in Art Enthusiasts.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
+(9, 'event_creation', NULL, NULL, NULL, 3, 'New event: Book Discussion in Book Club.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
+(2, 'event_creation', NULL, NULL, NULL, 4, 'New event: Photography Walk in Photography Hub.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
+(7, 'event_creation', NULL, NULL, NULL, 5, 'New event: Group Run in Fitness Fanatics.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
+(11, 'event_creation', NULL, NULL, NULL, 6, 'New event: Baking Class in Baking Buddies.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
+(4, 'event_creation', NULL, NULL, NULL, 7, 'New event: Travel Meetup in Travel Explorers.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
+(8, 'event_creation', NULL, NULL, NULL, 8, 'New event: Jam Session in Music Makers.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
+(13, 'event_creation', NULL, NULL, NULL, 9, 'New event: Tech Talk in Tech Talk.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
+(6, 'event_creation', NULL, NULL, NULL, 10, 'New event: Yoga Retreat in Yoga & Meditation.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
+(10, 'event_creation', NULL, NULL, NULL, 11, 'New event: Game Night in Gamers Guild.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
+(14, 'event_creation', NULL, NULL, NULL, 12, 'New event: Plant Swap in Plant Parents.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
+(3, 'event_creation', NULL, NULL, NULL, 13, 'New event: History Trivia in History Buffs.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
+(12, 'event_creation', NULL, NULL, NULL, 14, 'New event: Code Hackathon in Code Crafters.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable'),
+(1, 'event_creation', NULL, NULL, NULL, 15, 'New event: Coffee Tasting in Coffee Connoisseurs.', FALSE, CURRENT_TIMESTAMP, NULL, NULL, 'enable');
 
 -- Insert post privacy (7 columns)
 INSERT INTO post_privacy (post_id, user_id, created_at, updated_at, updated_by, status) VALUES

@@ -37,6 +37,7 @@ type Post struct {
 	CreatedAt        string  `json:"created_at"`
 	NumberOfComments int     `json:"numberOfComments"`
 	PostType         string  `json:"postType"`
+	Privacy          *string `json:"privacy,omitempty"`
 }
 
 type LoginRequest struct {
@@ -95,9 +96,10 @@ type Event struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
 	EventDate   string `json:"event_datetime"`
-	Going       []User `json:"going"`
-	NotGoing    []User `json:"not_going"`
-	NoResponse  []User `json:"no_response"`
+	//EventDate   time.Time `json:"event_datetime"`	// trying if time.Time type works
+	Going      []User `json:"going"`
+	NotGoing   []User `json:"not_going"`
+	NoResponse []User `json:"no_response"`
 }
 
 type EventResponse struct {

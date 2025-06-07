@@ -2,8 +2,11 @@ package service
 
 import (
 	"backend/internal/model"
+	"backend/internal/repository"
 	"encoding/json"
+	"fmt"
 	"log"
+	"net/http"
 	"strconv"
 )
 
@@ -33,4 +36,59 @@ func SendNotificationDeletedWS(notificationID int64, recipientUserID int) error 
 	}
 
 	return nil
+}
+
+func GetNotifications(userID int) ([]model.Notification, int) {
+	notifications, err := repository.GetAllNotificatons(userID)
+	if err != nil {
+		return nil, http.StatusInternalServerError
+	}
+
+	for i := range notifications {
+		var pending bool
+		var err error
+
+		switch notifications[i].Type {
+		case "follow_request":
+			pending, err = repository.CheckFollowRequestStatus(*notifications[i].FollowReqID)
+		case "group_invitation":
+			pending, err = repository.CheckInvitationStatus(*notifications[i].GroupInviteID)
+		case "group_join_request":
+			pending, err = repository.CheckJoinRequestStatus(*notifications[i].SenderID, *notifications[i].GroupID)
+		case "event_creation":
+			pending, err = repository.CheckEventInvitationStatus(notifications[i].UserID, *notifications[i].EventID)
+		}
+
+		if err != nil {
+			return nil, http.StatusInternalServerError
+		}
+		notifications[i].Pending = pending
+	}
+
+	return notifications, http.StatusOK
+}
+
+func JoinReqsByGroupId(userId int, groupIdStr string) ([]model.Notification, int) {
+	groupId, err := strconv.Atoi(groupIdStr)
+	if err != nil {
+		fmt.Println("Error converting id at HandleJoinReqsByGroupId", err)
+		return nil, http.StatusBadRequest
+	}
+
+	membership, err := Membership(userId, groupId)
+	if err != nil {
+		return nil, http.StatusInternalServerError
+	}
+
+	var notifications []model.Notification
+	if membership == "admin" {
+		// get notifications for people wanting to join this group
+		notifications, err = repository.GetJoinRequests(groupId)
+
+		if err != nil {
+			return nil, http.StatusInternalServerError
+		}
+	}
+
+	return notifications, http.StatusOK
 }

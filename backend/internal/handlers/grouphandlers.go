@@ -4,10 +4,8 @@ import (
 	"backend/internal/model"
 	"backend/internal/repository"
 	"backend/internal/service"
-	"database/sql"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -51,6 +49,7 @@ func SearchGroups(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(groups)
 }
 
@@ -68,23 +67,14 @@ func HandlePostsByGroupId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	viewGroup, err := repository.ViewFullGroupOrNot(userId, targetId)
+	posts, err := service.PostsByGroupId(userId, targetId)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
-	var posts []model.Post
-
-	if viewGroup {
-		posts, err = repository.GetGroupPostsByGroupId(targetId)
-		if err != nil {
-			http.Error(w, "Failed to get posts", http.StatusInternalServerError)
-			return
-		}
-	}
-
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(posts)
 }
 
@@ -102,23 +92,14 @@ func HandleMembersByGroupId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	viewGroup, err := repository.ViewFullGroupOrNot(userId, targetId)
+	users, err := service.MembersByGroupId(userId, targetId)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
-	var users []model.User
-
-	if viewGroup {
-		users, err = repository.GetGroupMembersByGroupId(targetId)
-		if err != nil {
-			http.Error(w, "Failed to get group members", http.StatusInternalServerError)
-			return
-		}
-	}
-
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(users)
 }
 
@@ -136,23 +117,14 @@ func HandleEventsByGroupId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	viewEvents, err := repository.ViewFullGroupOrNot(userId, targetId)
+	events, err := service.EventsByGroupId(userId, targetId)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
-	var events []model.Event
-
-	if viewEvents {
-		events, err = repository.GetGroupEventsByGroupId(targetId)
-		if err != nil {
-			http.Error(w, "Failed to get group members", http.StatusInternalServerError)
-			return
-		}
-	}
-
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(events)
 }
 
@@ -177,21 +149,9 @@ func CreateGroupPostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	groupID, err := strconv.Atoi(groupIDStr)
+	groupID, err := service.ValidMembership(userID, groupIDStr)
 	if err != nil {
-		fmt.Println("Invalid group_id at CreateGroupPostHandler", err)
-		http.Error(w, "Invalid group_id", http.StatusBadRequest)
-		return
-	}
-
-	membership, err := service.Membership(userID, groupID)
-	if err != nil {
-		http.Error(w, "Failed to determine group membership status", http.StatusInternalServerError)
-		return
-	}
-
-	if membership != "accepted" && membership != "admin" {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		http.Error(w, "No valid membership found", http.StatusBadRequest)
 		return
 	}
 
@@ -201,48 +161,24 @@ func CreateGroupPostHandler(w http.ResponseWriter, r *http.Request) {
 		defer file.Close()
 		savedPath, saveErr := service.SaveUploadedFile(file, header, "posts")
 		if saveErr != nil {
-			http.Error(w, "Failed to save image", http.StatusInternalServerError)
+			http.Error(w, "Error saving image", http.StatusInternalServerError)
 			return
 		}
 		imagePath = &savedPath
 	} else if err != http.ErrMissingFile {
 		fmt.Println("Error reading file at CreateGroupPostHandler", err)
-		http.Error(w, "Error reading file", http.StatusBadRequest)
+		http.Error(w, "Error reading image", http.StatusInternalServerError)
 		return
 	}
 
-	id, createdAt, err := repository.InsertGroupPost(userID, groupID, content, imagePath)
-	if err != nil {
-		http.Error(w, "Failed to store post", http.StatusInternalServerError)
+	post, statusCode := service.CreateGroupPost(userID, groupID, content, imagePath)
+	if !(statusCode >= http.StatusOK && statusCode < http.StatusMultipleChoices) {
+		http.Error(w, http.StatusText(statusCode), statusCode)
 		return
-	}
-
-	user, err := repository.GetUserById(userID, true)
-	if err != nil {
-		http.Error(w, "User not found", http.StatusNotFound)
-		return
-	}
-
-	group, err := repository.GetGroupById(groupID)
-	if err != nil {
-		http.Error(w, "Group not found", http.StatusNotFound)
-		return
-	}
-
-	post := model.Post{
-		ID:         int(id),
-		UserID:     userID,
-		Username:   user.FirstName + " " + user.LastName,
-		AvatarPath: user.AvatarPath,
-		Content:    content,
-		ImagePath:  imagePath,
-		GroupID:    &groupID,
-		GroupName:  &group.Title,
-		CreatedAt:  createdAt,
-		PostType:   "group",
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(post)
 }
 
@@ -268,79 +204,12 @@ func HandleGroupMembership(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var statusCode int
-	switch req.Action {
-	case "request":
-		var gmId int
-		gmId, statusCode = repository.GroupRequest(userID, req.TargetID) // 'approval_status' to pending, 'status' to enable
-		if !(statusCode >= http.StatusOK && statusCode < http.StatusMultipleChoices) {
-			fmt.Println("error code at HandleFollowAction:", statusCode)
-			http.Error(w, http.StatusText(statusCode), statusCode)
-			return
-		}
-
-		adminID, err := repository.GetAdminIdByGroupId(req.TargetID)
-		if err != nil {
-			fmt.Println("error getting admin in HandleGroupMembership:", err)
-			http.Error(w, "error getting admin id", http.StatusBadRequest)
-			return
-		}
-
-		_, err = repository.InsertNotification(userID, adminID, "group_join_request", gmId) // last id needs to be id at group members table
-		if err != nil {
-			http.Error(w, "error inserting notification in HandleGroupMembership", http.StatusBadRequest)
-			return
-		}
-	case "leave":
-		statusCode = repository.LeaveGroup(userID, req.TargetID) // 'status' to delete
-	case "cancel": // User (userID) cancels their join request to group (req.TargetID)
-		notificationID, err := repository.RemoveGroupRequestNotification(userID, req.TargetID)
-		if err != nil && err != sql.ErrNoRows {
-			log.Printf("Error removing group join request notification: %v", err)
-			http.Error(w, "Failed to remove group join request notification", http.StatusInternalServerError)
-			return
-		}
-
-		if err == sql.ErrNoRows {
-			log.Printf("No active group join request notification found for user %d to group %d.", userID, req.TargetID)
-		}
-
-		// Proceed to remove the group join request (leave group)
-		statusCode = repository.LeaveGroup(userID, req.TargetID) // req.TargetID is groupID
-		if statusCode != http.StatusOK {
-			log.Printf("Error leaving group (cancelling request): status code %d for user %d, group %d", statusCode, userID, req.TargetID)
-			http.Error(w, http.StatusText(statusCode), statusCode)
-			return
-		}
-
-		// If notification was successfully marked as deleted, send WS message to group admin
-		if err == nil { // sql.ErrNoRows would mean err != nil
-			adminID, adminErr := repository.GetAdminIdByGroupId(req.TargetID)
-			if adminErr != nil {
-				log.Printf("Error getting admin ID for group %d: %v", req.TargetID, adminErr)
-				// Not sending HTTP error here as the main operation (LeaveGroup) succeeded.
-				// But important to log for observability.
-			} else {
-				wsErr := service.SendNotificationDeletedWS(notificationID, adminID)
-				if wsErr != nil {
-					log.Printf("Error sending group join request deleted WebSocket message for notification %d to admin %d of group %d: %v", notificationID, adminID, req.TargetID, wsErr)
-					// Do not typically send HTTP error for WebSocket issues
-				}
-			}
-		}
-	case "delete":
-		statusCode = service.DeleteGroup(userID, req.TargetID)
-	default:
-		http.Error(w, "Unknown action", http.StatusBadRequest)
-	}
-
-	if !(statusCode >= http.StatusOK && statusCode < http.StatusMultipleChoices) { // error code
-		fmt.Println("error code at HandleFollowAction:", statusCode)
+	statusCode := service.GroupMembership(userID, req)
+	if !(statusCode >= http.StatusOK && statusCode < http.StatusMultipleChoices) {
 		http.Error(w, http.StatusText(statusCode), statusCode)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -359,6 +228,7 @@ func HandleGroupsByUserId(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(groups)
 }
 
@@ -377,6 +247,7 @@ func HandleGroupRequests(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(groups)
 }
 
@@ -395,6 +266,7 @@ func HandleGroupInvitations(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(groups)
 }
 
@@ -413,6 +285,7 @@ func HandleGroupsAdministered(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(groups)
 }
 
@@ -431,15 +304,9 @@ func HandleGroupById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	group, err := repository.GetGroupById(targetId)
+	group, membership, err := service.GroupById(userId, targetId)
 	if err != nil {
 		http.Error(w, "Failed to fetch group", http.StatusInternalServerError)
-		return
-	}
-
-	membership, err := service.Membership(userId, targetId)
-	if err != nil {
-		http.Error(w, "Failed to determine group membership status", http.StatusInternalServerError)
 		return
 	}
 
@@ -509,28 +376,13 @@ func HandleGroupRequestApprove(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	groupID := req.GroupID
-	requesterID := req.RequesterID
-
-	membership, err := service.Membership(userID, groupID)
-	if err != nil {
-		http.Error(w, "Failed to determine group membership status", http.StatusInternalServerError)
-		return
-	}
-
-	if membership != "admin" {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-
 	action := strings.TrimPrefix(r.URL.Path, "/api/group/requests/")
 	if action != "accepted" && action != "declined" {
 		http.Error(w, "Invalid request action syntax", http.StatusBadRequest)
 		return
 	}
 
-	statusCode := repository.ApproveGroupRequest(requesterID, groupID, userID, action)
-
+	statusCode := service.GroupRequestApprove(userID, req, action)
 	if !(statusCode >= http.StatusOK && statusCode < http.StatusMultipleChoices) { // error code
 		fmt.Println("error code at HandleGroupRequestApprove:", statusCode)
 		http.Error(w, http.StatusText(statusCode), statusCode)
@@ -560,17 +412,11 @@ func HandleGroupInvitation(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
 		return
 	}
-	groupInvite.Inviter = userID
 
-	groupInvite.ID, err = repository.InviteToGroup(groupInvite)
-	if err != nil {
-		http.Error(w, "Failed to create invitation", http.StatusUnauthorized)
-		return
-	}
-
-	_, err = repository.InsertNotification(groupInvite.Inviter, groupInvite.UserId, "group_invitation", groupInvite.ID)
-	if err != nil {
-		http.Error(w, "error inserting notification in HandleGroupInvitation", http.StatusBadRequest)
+	statusCode := service.GroupInvitation(userID, groupInvite)
+	if !(statusCode >= http.StatusOK && statusCode < http.StatusMultipleChoices) { // error code
+		fmt.Println("error code at HandleGroupRequestApprove:", statusCode)
+		http.Error(w, http.StatusText(statusCode), statusCode)
 		return
 	}
 
@@ -597,17 +443,10 @@ func HandleGroupInvitationSearch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	users, err := repository.SearchUsers(query)
-	if err != nil {
-		http.Error(w, "Error searching users", http.StatusInternalServerError)
-		return
-	}
-
 	type req struct {
 		GroupId string `json:"group_id"`
 	}
 	var groupInfo req
-
 	err = json.NewDecoder(r.Body).Decode(&groupInfo)
 	if err != nil {
 		fmt.Println("json error at HandleGroupInvitationSearch:", err)
@@ -615,24 +454,11 @@ func HandleGroupInvitationSearch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	groupId, err := strconv.Atoi(groupInfo.GroupId)
-	if err != nil {
-		fmt.Println("strconv.Atoi error at HandleGroupInvitationSearch:", err)
-		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+	invitables, statusCode := service.GroupInvitationSearch(query, groupInfo.GroupId, invitables)
+	if !(statusCode >= http.StatusOK && statusCode < http.StatusMultipleChoices) { // error code
+		fmt.Println("error code at HandleGroupRequestApprove:", statusCode)
+		http.Error(w, http.StatusText(statusCode), statusCode)
 		return
-	}
-
-	for _, user := range users {
-		var inv model.InvitableUser
-		inv.User = user
-		membership, err := repository.GetMembershipStatus(user.ID, groupId)
-		if err != nil {
-			fmt.Println("error getting membership at HandleGroupInvitationSearch:", err)
-			http.Error(w, "error getting membership status", http.StatusBadRequest)
-			return
-		}
-		inv.Membership = membership
-		invitables = append(invitables, inv)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -640,7 +466,7 @@ func HandleGroupInvitationSearch(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(invitables)
 }
 
-func ApproveGroupInvitation(w http.ResponseWriter, r *http.Request) {
+func HandleApproveGroupInvitation(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		fmt.Println("Method not allowed at HandleFollowRequestApprove")
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -659,60 +485,10 @@ func ApproveGroupInvitation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	action := data[1]
-	inviteID, err := strconv.Atoi(data[0])
-	if err != nil {
-		http.Error(w, "Invalid invite ID", http.StatusBadRequest)
-		return
-	}
-
-	// get invite info: group id and user id
-	groupID, invitedID, err := repository.GetGroupInviteInfo(inviteID)
-	if err != nil {
-		http.Error(w, "Failed to get group invitation info", http.StatusInternalServerError)
-		return
-	}
-
-	if userID != invitedID {
-		http.Error(w, "Only own invitations could be approved", http.StatusUnauthorized)
-		return
-	}
-
-	membership, err := service.Membership(userID, groupID)
-	if err != nil {
-		http.Error(w, "Failed to determine group membership status", http.StatusInternalServerError)
-		return
-	}
-
-	var statusCode int
-	switch membership {
-	case "accepted":
-		// User is already a member, just update invite status
-		statusCode = repository.UpdateGroupInviteStatus(inviteID, userID, action)
-	case "pending", "declined", "":
-		// Update both invite and member status
-		statusCode = repository.UpdateGroupInviteStatus(inviteID, userID, action)
-		if action == "accepted" {
-			err = repository.AddGroupMember(userID, groupID)
-			if err != nil {
-				http.Error(w, "Failed to add group member", http.StatusInternalServerError)
-				return
-			}
-		}
-
-	default:
-		http.Error(w, "Invalid membership status", http.StatusInternalServerError)
-		return
-	}
-
+	statusCode := service.ApproveGroupInvitation(userID, data)
 	if !(statusCode >= http.StatusOK && statusCode < http.StatusMultipleChoices) { // error code
 		fmt.Println("error code at ApproveGroupInvitation:", statusCode)
 		http.Error(w, http.StatusText(statusCode), statusCode)
-		return
-	}
-
-	if err != nil {
-		http.Error(w, "Failed to process invitation", http.StatusInternalServerError)
 		return
 	}
 

@@ -22,7 +22,7 @@
                         notification.group_title }}</router-link>
                 </template>
                 <template v-else-if="notification.type === 'event_creation'">
-                    New event: <router-link :to="'/event/' + notification.event_id" class="font-bold">{{
+                    New event: <router-link :to="'/events/' + notification.event_id" class="font-bold">{{
                         notification.event_title }}</router-link>
                 </template>
                 <template v-else>

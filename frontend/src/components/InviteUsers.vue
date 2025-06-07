@@ -12,7 +12,7 @@ import { ref } from 'vue'
 import SearchBoxInvite from './SearchBoxInvite.vue'
 import SearchResultsInvite from './SearchResultsInvite.vue'
 
-const emit = defineEmits(['post-submitted'])
+//const emit = defineEmits(['post-submitted'])
 const searchResults = ref([])
 const searchInitiated = ref(false)
 
