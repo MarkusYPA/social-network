@@ -49,7 +49,7 @@ func GetUserById(id int, viewFull bool) (model.User, error) {
 	return user, err
 }
 
-func GetUserByEmail(req model.LoginRequest) (model.User, error) {
+func GetUserByEmail(req model.LoginRequest) (model.User, bool, error) {
 	var user model.User
 	var nickname sql.NullString
 	var about sql.NullString
@@ -62,9 +62,9 @@ func GetUserByEmail(req model.LoginRequest) (model.User, error) {
 
 	if err != nil {
 		fmt.Println("error getting user by email:", err)
-		return user, err
+		return user, false, err
 	}
-
+	fmt.Println("birth day", user.Birthday)
 	if nickname.Valid {
 		user.Username = nickname.String
 	} else {
@@ -83,7 +83,7 @@ func GetUserByEmail(req model.LoginRequest) (model.User, error) {
 		user.AvatarPath = ""
 	}
 
-	return user, nil
+	return user, true, nil
 }
 
 func GetUserIdAndExpirationBySessionId(cookie *http.Cookie) (int, time.Time, error) {
