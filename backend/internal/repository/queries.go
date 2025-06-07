@@ -284,7 +284,8 @@ func GetFeedPostsBefore(userID int, cursorTime time.Time, limit, lastPostId int)
       AND (
 	  	  -- own posts
           p.user_id = ?
-
+		  -- public posts
+		  OR p.privacy_level = 'public'
 		  -- non-private posts from followed users
           OR (
 		      p.privacy_level != 'private'
