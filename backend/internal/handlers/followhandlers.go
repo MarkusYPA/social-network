@@ -4,10 +4,8 @@ import (
 	"backend/internal/model"
 	"backend/internal/repository"
 	"backend/internal/service"
-	"database/sql"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -59,56 +57,7 @@ func HandleFollowAction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var statusCode, frID int
-	switch req.Action {
-	case "request":
-		frID, statusCode = service.FollowRequest(userID, req.TargetID)
-		if statusCode == http.StatusOK {
-			_, err = repository.InsertNotification(userID, req.TargetID, "follow_request", frID)
-			if err != nil {
-				http.Error(w, "error inserting notification in HandleGroupMembership", http.StatusBadRequest)
-				return
-			}
-		}
-	case "follow":
-		statusCode = service.Follow(userID, req.TargetID)
-	case "unfollow":
-		statusCode = repository.RemoveFollow(userID, req.TargetID)
-	case "cancel":
-		notificationID, err := repository.RemoveFollowRequestNotification(userID, req.TargetID)
-		if err != nil && err != sql.ErrNoRows {
-			log.Printf("Error removing follow request notification: %v", err)
-			http.Error(w, "Failed to remove follow request notification", http.StatusInternalServerError)
-			return
-		}
-
-		if err == sql.ErrNoRows {
-			log.Printf("No active follow request notification found for user %d to target %d. Proceeding to remove follow request.", userID, req.TargetID)
-		}
-
-		// Proceed to remove the follow request itself
-		statusCode = repository.RemoveFollow(userID, req.TargetID)
-		if statusCode != http.StatusOK {
-			log.Printf("Error removing follow request: status code %d", statusCode)
-			// Potentially overwrite http error from notification removal if this also fails,
-			// or decide which error is more critical to report.
-			http.Error(w, http.StatusText(statusCode), statusCode)
-			return
-		}
-
-		// If notification was successfully marked as deleted, send WS message
-		if err == nil { // sql.ErrNoRows would mean err != nil
-			wsErr := service.SendNotificationDeletedWS(notificationID, req.TargetID)
-			if wsErr != nil {
-				log.Printf("Error sending notification deleted WebSocket message for notification %d to user %d: %v", notificationID, req.TargetID, wsErr)
-				// Do not typically send HTTP error for WebSocket issues
-			}
-		}
-
-	default:
-		http.Error(w, "Unknown action", http.StatusBadRequest)
-		return
-	}
+	statusCode := service.FollowAction(userID, req)
 
 	if !(statusCode >= http.StatusOK && statusCode < http.StatusMultipleChoices) { // error code
 		fmt.Println("error code at HandleFollowAction:", statusCode)
@@ -235,22 +184,7 @@ func HandleFollowRequestApprove(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	action := data[1]
-	requestID, err := strconv.Atoi(data[0])
-	if err != nil {
-		http.Error(w, "Invalid request ID", http.StatusBadRequest)
-		return
-	}
-
-	var statusCode int
-	switch action {
-	case "accept":
-		statusCode = repository.AcceptFollowRequest(userID, requestID)
-	case "decline":
-		statusCode = repository.AcceptFollowRequest(userID, requestID)
-	default:
-		http.Error(w, "Unknown action", http.StatusBadRequest)
-	}
+	statusCode := service.FollowRequestApprove(userID, data)
 
 	if !(statusCode >= http.StatusOK && statusCode < http.StatusMultipleChoices) { // error code
 		fmt.Println("error code at HandleFollowRequestApprove:", statusCode)

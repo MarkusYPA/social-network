@@ -227,14 +227,16 @@ async function handleGroupAction() {
         if (!res.ok) throw new Error('Failed to update group status')
 
         // Get membership status again
-        const followRes = await fetch(`${apiUrl}/api/group/${group.value.id}`, {     //
-            credentials: 'include'
-        })
-        if (!followRes.ok) {
-            throw new Error(`Failed to fetch follow info: ${followRes.status}`)
+        if (action != 'delete') {
+            const followRes = await fetch(`${apiUrl}/api/group/${group.value.id}`, {     //
+                credentials: 'include'
+            })
+            if (!followRes.ok) {
+                throw new Error(`Failed to fetch follow info in handleGroupAction: ${followRes.status}`)
+            }
+            const resp = await followRes.json()
+            membershipStatus.value = resp.membership
         }
-        const resp = await followRes.json()
-        membershipStatus.value = resp.membership
     } catch (err) {
         console.error(err)
     }

@@ -9,7 +9,12 @@
                     Current ({{ unreadCount }})
                 </button>
                 <button @click="showCurrent = false" :class="{ active: !showCurrent }">
-                    Old ({{ notifications.length - unreadCount }})
+                    <div v-if="notifications && notifications.length > 0">
+                        Old ({{ notifications.length - unreadCount }})
+                    </div>
+                    <div v-else>
+                        Old (0)
+                    </div>
                 </button>
             </template>
 
@@ -71,6 +76,8 @@ async function approveFollowRequest(id, action) {
 }
 
 async function approveGroupRequest(groupID, senderID, action) {
+    //console.log(action, "to group request for group", groupID, "from user", senderID)
+
     try {
         const res = await fetch(`${apiUrl}/api/group/requests/${action}`, {
             method: 'POST',

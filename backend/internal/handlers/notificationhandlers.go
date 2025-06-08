@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"backend/internal/model"
 	"backend/internal/repository"
 	"backend/internal/service"
 	"encoding/json"
@@ -12,48 +11,25 @@ import (
 )
 
 // GetNotifications handles GET /api/notifications and returns all notifications for the authenticated user.
-func GetNotifications(w http.ResponseWriter, r *http.Request) {
+func HandleGetNotifications(w http.ResponseWriter, r *http.Request) {
 	userID, err := service.ValidateSession(r)
 	if err != nil {
+		fmt.Println("not authorized at GetNotifications:", err)
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
-	notifications, err := repository.GetAllNotificatons(userID)
-	if err != nil {
-		http.Error(w, "Failed to fetch notifications", http.StatusInternalServerError)
+	notifications, statusCode := service.GetNotifications(userID)
+	if !(statusCode >= http.StatusOK && statusCode < http.StatusMultipleChoices) {
+		http.Error(w, http.StatusText(statusCode), statusCode)
 		return
 	}
 
-	for i := range notifications {
-		var pending bool
-		var err error
-
-		switch notifications[i].Type {
-		case "follow_request":
-			pending, err = repository.CheckFollowRequestStatus(*notifications[i].FollowReqID)
-		case "group_invitation":
-			pending, err = repository.CheckInvitationStatus(*notifications[i].GroupInviteID)
-		case "group_join_request":
-			pending, err = repository.CheckJoinRequestStatus(*notifications[i].SenderID, *notifications[i].GroupID)
-		case "event_creation":
-			pending, err = repository.CheckEventInvitationStatus(notifications[i].UserID, *notifications[i].EventID)
-		}
-
-		if err != nil {
-			http.Error(w, "Failed to check notification status", http.StatusInternalServerError)
-			return
-		}
-		notifications[i].Pending = pending
-	}
-
 	w.Header().Set("Content-Type", "application/json")
-
 	if err := json.NewEncoder(w).Encode(notifications); err != nil {
 		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
 		return
 	}
-
 }
 
 func GetNewNotifications(w http.ResponseWriter, r *http.Request) {
@@ -135,30 +111,13 @@ func HandleJoinReqsByGroupId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	idStr := strings.TrimPrefix(r.URL.Path, "/api/notifications/") //   /api/notifications/joingroup/  old version
-	idStr = strings.TrimSuffix(idStr, "/joingroup")
-	groupId, err := strconv.Atoi(idStr)
-	if err != nil {
-		fmt.Println("Error converting id at HandleJoinReqsByGroupId", err)
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+	groupIdStr := strings.TrimPrefix(r.URL.Path, "/api/notifications/") //   /api/notifications/joingroup/  old version
+	groupIdStr = strings.TrimSuffix(groupIdStr, "/joingroup")
+
+	notifications, statusCode := service.JoinReqsByGroupId(userId, groupIdStr)
+	if !(statusCode >= http.StatusOK && statusCode < http.StatusMultipleChoices) {
+		http.Error(w, http.StatusText(statusCode), statusCode)
 		return
-	}
-
-	membership, err := service.Membership(userId, groupId)
-	if err != nil {
-		http.Error(w, "Failed to determine group membership status", http.StatusInternalServerError)
-		return
-	}
-
-	var notifications []model.Notification
-	if membership == "admin" {
-		// get notifications for people wanting to join this group
-		notifications, err = repository.GetJoinRequests(groupId)
-
-		if err != nil {
-			http.Error(w, "Failed to get group join notifications", http.StatusInternalServerError)
-			return
-		}
 	}
 
 	w.Header().Set("Content-Type", "application/json")

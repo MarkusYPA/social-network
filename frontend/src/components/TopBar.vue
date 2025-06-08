@@ -173,22 +173,19 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/stores/user';
-import { useErrorStore } from '@/stores/error';
 import { useAuth } from '@/composables/useAuth';
 import { useNotificationStore } from '@/stores/notifications'; // Added
 
 const route = useRoute();
-const router = useRouter();
 const userStore = useUserStore();
-const errorStore = useErrorStore(); // Keep if used
 const { user } = storeToRefs(userStore);
 const { logout } = useAuth(); // Keep if used
 
 const notificationStore = useNotificationStore(); // Added
-const { unreadCount, notifications } = storeToRefs(notificationStore); // Added, 'notifications' can be used later
+const { unreadCount } = storeToRefs(notificationStore); // Added, 'notifications' can be used later
 
 const isMobileMenuOpen = ref(false);
 const apiUrl = import.meta.env.VITE_API_URL;
@@ -203,36 +200,8 @@ onMounted(() => {
     if (userStore.isLoggedIn) { // Good practice to only fetch if logged in
         notificationStore.fetchNotifications(); // Added
     }
-    // Any other onMounted logic that was there
 });
 
-
-// Placeholder for WebSocket setup
-// This can be implemented later when WebSocket is available
-const setupWebSocket = () => {
-    // Example WebSocket connection (uncomment and configure when ready)
-    /*
-    const ws = new WebSocket(`ws://${apiUrl.replace('http', 'ws')}/notifications`);
-    ws.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        newNotificationsCount.value = data.count || 0; // Update count from WebSocket
-    };
-    ws.onopen = () => {
-        console.log('WebSocket connected');
-    };
-    ws.onerror = (error) => {
-        errorStore.setError('Error', 'WebSocket connection failed.');
-    };
-    ws.onclose = () => {
-        console.log('WebSocket closed');
-    };
-    */
-};
-
-// Call WebSocket setup when ready (uncomment when implementing)
-// onMounted(() => {
-//     setupWebSocket();
-// });
 </script>
 
 <style scoped>

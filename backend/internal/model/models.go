@@ -37,6 +37,7 @@ type Post struct {
 	CreatedAt        string  `json:"created_at"`
 	NumberOfComments int     `json:"numberOfComments"`
 	PostType         string  `json:"postType"`
+	Privacy          *string `json:"privacy,omitempty"`
 }
 
 type LoginRequest struct {

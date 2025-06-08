@@ -22,11 +22,11 @@ func setHandlers() {
 	http.HandleFunc("/api/group/posts/", middleware.WithCORS(handlers.HandlePostsByGroupId))
 	http.HandleFunc("/api/group/members/", middleware.WithCORS(handlers.HandleMembersByGroupId))
 	http.HandleFunc("/api/group/events/", middleware.WithCORS(handlers.HandleEventsByGroupId))
-	http.HandleFunc("/api/homefeed", middleware.WithCORS(handlers.GetFeedPosts))
+	http.HandleFunc("/api/homefeed", middleware.WithCORS(handlers.HandleGetFeedPosts))
 
 	http.HandleFunc("/api/events/create", middleware.WithCORS(handlers.HandleCreateEvent))
 	http.HandleFunc("/api/events/respond", middleware.WithCORS(handlers.HandleEventResponse))
-	http.HandleFunc("/api/events/", middleware.WithCORS(handlers.GetHandleEventByID))
+	http.HandleFunc("/api/events/", middleware.WithCORS(handlers.GetEventByID))
 	http.HandleFunc("/api/events/user", middleware.WithCORS(handlers.GetEventsByUserID))
 	http.HandleFunc("/api/events/group/", middleware.WithCORS(handlers.GetEventsByGroupID))
 
@@ -41,7 +41,7 @@ func setHandlers() {
 	http.HandleFunc("/api/group/join", middleware.WithCORS(handlers.HandleGroupMembership))
 	http.HandleFunc("/api/group/requests/{approval_status}", middleware.WithCORS(handlers.HandleGroupRequestApprove))
 	http.HandleFunc("/api/group/invite", middleware.WithCORS(handlers.HandleGroupInvitation))
-	http.HandleFunc("/api/group/invite/{id}/{approval_status}", middleware.WithCORS(handlers.ApproveGroupInvitation))
+	http.HandleFunc("/api/group/invite/{id}/{approval_status}", middleware.WithCORS(handlers.HandleApproveGroupInvitation))
 	http.HandleFunc("/api/group/invite/search", middleware.WithCORS(handlers.HandleGroupInvitationSearch))
 	http.HandleFunc("/api/group/chat/messages/", middleware.WithCORS(handlers.HandleGetGroupMessagesByGroupId))
 	http.HandleFunc("/api/group-posts/create", middleware.WithCORS(handlers.CreateGroupPostHandler))
@@ -64,7 +64,7 @@ func setHandlers() {
 	http.HandleFunc("/api/follow/requests/{id}/decline", middleware.WithCORS(handlers.HandleFollowRequestApprove))
 	http.HandleFunc("/api/suggest/users", middleware.WithCORS(handlers.GetSuggestedUsers))
 
-	http.HandleFunc("/api/notifications", middleware.WithCORS(handlers.GetNotifications))
+	http.HandleFunc("/api/notifications", middleware.WithCORS(handlers.HandleGetNotifications))
 	http.HandleFunc("/api/notifications/{id}", middleware.WithCORS(handlers.GetNotificationByID))
 	http.HandleFunc("/api/notifications/{id}/read", middleware.WithCORS(handlers.ReadNotification))
 	http.HandleFunc("/api/notifications/new", middleware.WithCORS(handlers.GetNewNotifications))

@@ -2,10 +2,8 @@ package handlers
 
 import (
 	"backend/config"
-	//"backend/internal/repository"
-	"backend/internal/service"
-	//"encoding/json"
 	"backend/internal/model"
+	"backend/internal/service"
 	"fmt"
 	"log"
 	"net/http"
@@ -44,7 +42,7 @@ func HandleWSConnections(w http.ResponseWriter, r *http.Request) {
 	model.Mu.Unlock()
 
 	go service.ReadPump(client)
-	go service.WritePump(client) // safe to run as goroutine when deleting client happens elsewhere
+	go service.WritePump(client)
 
 	// send pong to test connection
 	msg := model.WSMessage{
@@ -58,8 +56,4 @@ func HandleWSConnections(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println("error at pong:", err)
 	}
-
-	/* model.Mu.Lock()						// moved into ReadPump
-	delete(model.Clients, client.UserID)
-	model.Mu.Unlock() */
 }

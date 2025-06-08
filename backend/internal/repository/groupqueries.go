@@ -36,6 +36,7 @@ func GroupMembership(userId, targetId int) (string, int, error) {
 	WHERE gm.group_id = ? AND gm.user_id = ? AND gm.status = 'enable' AND g.status = 'enable'`, targetId, userId).Scan(&approval, &adminId)
 	if err != nil {
 		if err == sql.ErrNoRows { // No membership found
+			//fmt.Println("no membership found for user", userId, "in group", targetId)
 			return approval, adminId, nil
 		}
 		return approval, adminId, err
@@ -298,13 +299,25 @@ func GroupRequest(userID, groupID int) (int, int) {
 }
 
 func LeaveGroup(userID, groupID int) int {
+	var creatorID int
+	err := database.DB.QueryRow("SELECT creator_id FROM groups WHERE id = ?", groupID).Scan(&creatorID)
+	if err != nil {
+		fmt.Println("Error checking group creator:", err)
+		return http.StatusInternalServerError
+	}
+	if creatorID == userID {
+		// creator/admin should not leave the group
+		return http.StatusForbidden
+	}
+
 	query := `
-	UPDATE group_members
-	SET status = 'delete', updated_by = ?
-	WHERE group_id = ? AND user_id = ?
+		UPDATE group_members
+		SET status = 'delete', updated_by = ?
+		WHERE group_id = ? AND user_id = ?
 	`
 	res, err := database.DB.Exec(query, userID, groupID, userID)
 	if err != nil {
+		fmt.Println("Error at LeaveGroup:", err)
 		return http.StatusInternalServerError
 	}
 	rows, _ := res.RowsAffected()
@@ -313,20 +326,6 @@ func LeaveGroup(userID, groupID int) int {
 	}
 	return http.StatusOK
 }
-
-/* func DeleteGroup(userID, groupID int) int {
-	query := `UPDATE groups SET status = 'delete', updated_by = ? WHERE id = ? AND creator_id = ?`
-	res, err := database.DB.Exec(query, userID, groupID, userID)
-	if err != nil {
-		fmt.Println("query error at DeleteGroup:", err)
-		return http.StatusInternalServerError
-	}
-	rows, _ := res.RowsAffected()
-	if rows == 0 {
-		return http.StatusForbidden // Not allowed or group doesn't exist
-	}
-	return http.StatusOK
-} */
 
 func DeleteGroupWithDependencies(userID, groupID int) error {
 
@@ -619,4 +618,119 @@ func RemoveGroupRequestNotification(userID, groupID int) (int64, error) {
 	}
 
 	return notificationID, nil
+}
+
+func GetGroupsByUserId(userId int) ([]model.Group, error) {
+	query := `
+	SELECT g.id, g.title, g.description
+	FROM groups g
+	JOIN group_members gm ON g.id = gm.group_id
+	WHERE gm.user_id = ? AND g.status = 'enable' AND gm.status = 'enable' AND gm.approval_status = 'accepted' ;
+	`
+
+	rows, err := database.DB.Query(query, userId)
+	if err != nil {
+		fmt.Println("query error in GetGroupsByUserId", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var groups []model.Group
+	for rows.Next() {
+		var g model.Group
+		err := rows.Scan(&g.ID, &g.Title, &g.Description)
+		if err != nil {
+			fmt.Println("scan error in GetGroupsByUserId", err)
+			return groups, err
+		}
+		groups = append(groups, g)
+	}
+
+	return groups, nil
+}
+
+func GetGroupRequestsByUserId(userId int) ([]model.Group, error) {
+	query := `
+	SELECT g.id, g.title, g.description
+	FROM groups g
+	JOIN group_members gm ON g.id = gm.group_id
+	WHERE gm.user_id = ? AND g.status = 'enable' AND gm.status = 'enable' AND gm.approval_status = 'pending' ;
+	`
+
+	rows, err := database.DB.Query(query, userId)
+	if err != nil {
+		fmt.Println("query error in GetGroupRequestsByUserId", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var groups []model.Group
+	for rows.Next() {
+		var g model.Group
+		err := rows.Scan(&g.ID, &g.Title, &g.Description)
+		if err != nil {
+			fmt.Println("scan error in GetGroupRequestsByUserId", err)
+			return groups, err
+		}
+		groups = append(groups, g)
+	}
+
+	return groups, nil
+}
+
+func GetGroupInvitationsByUserId(userId int) ([]model.Group, error) {
+	query := `
+	SELECT g.id, g.title, g.description
+	FROM groups g
+	JOIN group_invitations gi ON g.id = gi.group_id
+	WHERE gi.user_id = ? AND g.status = 'enable' AND gi.status = 'enable' AND gi.approval_status = 'pending' ;
+	`
+
+	rows, err := database.DB.Query(query, userId)
+	if err != nil {
+		fmt.Println("query error in GetGroupInvitationsByUserId", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var groups []model.Group
+	for rows.Next() {
+		var g model.Group
+		err := rows.Scan(&g.ID, &g.Title, &g.Description)
+		if err != nil {
+			fmt.Println("scan error in GetGroupInvitationsByUserId", err)
+			return groups, err
+		}
+		groups = append(groups, g)
+	}
+
+	return groups, nil
+}
+
+func GetGroupsAdministeredByUserId(userId int) ([]model.Group, error) {
+	query := `
+	SELECT g.id, g.title, g.description
+	FROM groups g
+	WHERE g.creator_id = ? AND g.status = 'enable';
+	`
+
+	rows, err := database.DB.Query(query, userId)
+	if err != nil {
+		fmt.Println("query error in GetGroupsAdministeredByUserId", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var groups []model.Group
+	for rows.Next() {
+		var g model.Group
+		err := rows.Scan(&g.ID, &g.Title, &g.Description)
+		if err != nil {
+			fmt.Println("scan error in GetGroupsAdministeredByUserId", err)
+			return groups, err
+		}
+		groups = append(groups, g)
+	}
+
+	return groups, nil
 }

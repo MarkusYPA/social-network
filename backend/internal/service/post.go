@@ -10,6 +10,8 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -42,6 +44,7 @@ func CreatePost(content, privacyLvl string, imagePath *string, userID int, viewe
 	post.Content = content
 	post.CreatedAt = createdAt
 	post.PostType = "regular"
+	post.Privacy = &privacyLvl
 	return post, http.StatusOK
 }
 
@@ -69,4 +72,70 @@ func SaveUploadedFile(file multipart.File, header *multipart.FileHeader, filePat
 	}
 
 	return "/" + dst, nil
+}
+
+func GetFeedPosts(cursor, limitStr, lastPostIdStr string, userId int) ([]model.Post, error) {
+	limit := 10
+	lastPostId := 0
+	if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
+		limit = l
+	}
+	if lpid, err := strconv.Atoi(lastPostIdStr); err == nil && lpid > 0 {
+		lastPostId = lpid
+	}
+
+	cursorTime := time.Now().UTC() // use current time by default
+
+	if cursor != "" {
+		t, err := time.Parse(time.RFC3339, cursor)
+		if err == nil {
+			cursorTime = t
+		}
+	}
+
+	cursorTime = cursorTime.Truncate(time.Second)
+
+	posts, err := repository.GetFeedPostsBefore(userId, cursorTime, limit, lastPostId)
+	if err != nil {
+		return nil, err
+	}
+
+	return posts, nil
+}
+
+func CommentsForPost(postIDstring, postType string, userID int) ([]model.Comment, error) {
+	PostID, err := strconv.Atoi(postIDstring)
+	if err != nil {
+		fmt.Println("can not convert postId")
+		return nil, err
+	}
+
+	var comments []model.Comment
+	if postType == "regular" {
+		comments, err = repository.ReadAllCommentsForPost(PostID, userID)
+	} else if postType == "group" {
+		comments, err = repository.ReadAllCommentsForGroupPost(PostID, userID)
+	}
+
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return comments, nil
+}
+
+func CreateCommentsForPost(UserID int, PostIDstring, postType, content string, imagePath *string) error {
+	PostID, err := strconv.Atoi(PostIDstring)
+	if err != nil {
+		return err
+	}
+
+	if postType == "regular" {
+		err = repository.InsertComment(content, UserID, PostID, imagePath)
+	} else if postType == "group" {
+		err = repository.InsertGroupComment(content, UserID, PostID, imagePath)
+	}
+
+	return err
 }
