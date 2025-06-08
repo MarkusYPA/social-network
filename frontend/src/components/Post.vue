@@ -2,18 +2,14 @@
     <div
         class="post-card flex flex-col items-start gap-2 mb-4 p-4 bg-[var(--nordic-primary-bg)] border border-[var(--nordic-border-light)] rounded-md shadow-sm">
 
-        <!-- image -->
         <img v-if="post.image_path" :src="`${apiUrl}/${post.image_path}`" alt=""
             class="w-full rounded-md border border-[var(--nordic-border-light)]" />
 
-        <!-- text content -->
         <p class="post-content text-[var(--nordic-text-dark)]text-base">
             {{ post.content }}
         </p>
 
-        <!-- row with poster avatar and name, group and time of creation -->
         <small class="post-date flex items-center text-sm text-[var(--nordic-text-light)]">
-            <!-- link to user -->
             <RouterLink :to="`/profile/${post.user_id}`"
                 class="post-user flex items-center mr-1 hover:underline text-[var(--nordic-text-dark)]">
                 <div v-if="post.avatar_url"
@@ -22,7 +18,6 @@
                 </div>
                 {{ post.username }}
             </RouterLink>
-            <!-- link to possible group -->
             <span v-if="post.group_id" class="text-[var(--nordic-text-light)]">
                 in
                 <RouterLink :to="`/group/${post.group_id}`"
@@ -30,53 +25,54 @@
                     {{ post.group_name }}
                 </RouterLink>
             </span>
-            <!-- time and date -->
             on {{ formattedPostDate }}
         </small>
 
         <div class="flex flex-row w-full justify-between items-center">
-            <div>
-                <!-- show comments -->
-                <button @click="toggleComments" class="mr-2 text-blue-500 hover:underline"
+            <div class="flex items-center">
+                <button @click="toggleComments" class="group relative flex items-center mr-4 p-1 rounded-md transition-colors duration-200"
                     :disabled="commentCount === 0"
-                    :class="{ 'text-gray-400 hover:no-underline cursor-default': commentCount === 0 }">
-                    {{ commentLabel }}
+                    :class="{ 'text-gray-400 cursor-default': commentCount === 0, 'text-blue-500 hover:bg-blue-100': commentCount > 0 }">
+                    <font-awesome-icon :icon="showComments ? 'eye-slash' : 'comments'" class="text-xl" />
+                    <span v-if="commentCount > 0" class="ml-1 text-sm font-semibold">{{ commentCount }}</span>
+                    <span
+                        class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-700 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
+                        {{ commentLabel }}
+                    </span>
                 </button>
 
-                <!-- show new comment form button -->
-                <button @click="showNewCommentForm" class="text-blue-500 hover:underline">
-                    {{ newComment ? 'Hide form' : 'Add comment' }}
+                <button @click="showNewCommentForm" class="group relative flex items-center p-1 rounded-md text-blue-500 hover:bg-blue-100 transition-colors duration-200">
+                    <font-awesome-icon :icon="newComment ? 'comment-slash' : 'comment-medical'" class="text-xl" />
+                    <span
+                        class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-700 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
+                        {{ newComment ? 'Hide form' : 'Add comment' }}
+                    </span>
                 </button>
             </div>
 
-            <!-- post type / privacy -->
             <span class="text-xs break-normal text-gray-400">{{ displayPrivacy() }}</span>
         </div>
 
-        <!-- comment form -->
         <div v-if="newComment" class="space-y-4 bg-white p-4 border rounded-md shadow-sm w-full max-w-screen-lg">
             <h2 class="text-xl font-semibold text-gray-800">Create a new comment</h2>
-            <textarea v-model="content" rows="4" placeholder="Enter your comment" class="w-full p-3 border border-gray-300 rounded-md text-gray-700 placeholder-gray-400 
+            <textarea v-model="content" rows="4" placeholder="Enter your comment" class="w-full p-3 border border-gray-300 rounded-md text-gray-700 placeholder-gray-400
                 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-y"></textarea>
-            <!-- upload image -->
             <div class="space-y-2">
                 <label class="block text-sm font-medium text-[var(--nordic-text-light)]">Image (Optional):</label>
-                <input type="file" @change="handleFileUpload" accept="image/*" class="block w-full text-sm text-[var(--nordic-text-light)]
-                    file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 
-                    file:text-sm file:font-semibold 
-                    file:bg-[var(--nordic-secondary-bg)] file:text-[var(--nordic-text-dark)] 
+                <input type="file" @change="handleFileUpload" accept="image/*" ref="imageInput" class="block w-full text-sm text-[var(--nordic-text-light)]
+                    file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-[var(--nordic-secondary-bg)] file:text-[var(--nordic-text-dark)]
                     hover:file:bg-[var(--nordic-border-light)]" />
             </div>
-            <!-- submit button -->
-            <button @click="submitComment" :disabled="!content.trim()" class="inline-flex items-center py-2 px-4 border border-nordic-light rounded-md 
-                bg-nordic-primary-accent text-white hover:bg-nordic-secondary-accent focus:outline-none 
-                focus:ring-2 focus:ring-nordic-secondary-accent transition font-medium 
+            <button @click="submitComment" :disabled="!content.trim()" class="inline-flex items-center py-2 px-4 border border-nordic-light rounded-md
+                bg-nordic-primary-accent text-white hover:bg-nordic-secondary-accent focus:outline-none
+                focus:ring-2 focus:ring-nordic-secondary-accent transition font-medium
                 disabled:opacity-50 disabled:cursor-not-allowed">
                 submit comment
             </button>
         </div>
 
-        <!-- existing comments -->
         <div v-if="showComments" class="mt-2">
             <div v-if="loadingComments">Loading comments...</div>
             <div v-else-if="commentCount === 0">No comments yet.</div>
@@ -153,8 +149,8 @@ const commentLabel = computed(() => {
         return 'No comments yet';
     }
     return showComments.value
-        ? `Hide Comments (${commentCount.value})`
-        : `Show Comments (${commentCount.value})`;
+        ? `Hide Comments`
+        : `Show Comments`;
 });
 
 const formattedPostDate = computed(() => finnishTime(post.created_at, 'medium', 'short'))
@@ -180,7 +176,7 @@ const loadComments = async () => {
         });
         comments.value = await res.json();
         // Update the count after loading
-        commentCount.value = comments.value.length;
+        commentCount.value = comments.value?.length || 0;
         //console.log("Image is: ", comments.)
     } catch (error) {
         comments.value = [];

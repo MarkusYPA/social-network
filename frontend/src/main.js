@@ -6,12 +6,16 @@ import router from './router'
 import { createPinia } from 'pinia'
 import { useUserStore } from './stores/user'
 import { useWebSocketStore } from './stores/websocket'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faComments, faCommentMedical, faEyeSlash, faCommentSlash } from '@fortawesome/free-solid-svg-icons' // Import necessary icons
 
+library.add(faComments, faCommentMedical, faEyeSlash, faCommentSlash) // Add them to the library
 const app = createApp(App)
 const pinia = createPinia()
 app.use(pinia)
 app.use(router)
-
+app.component('font-awesome-icon', FontAwesomeIcon)
 const userStore = useUserStore(pinia)
 const websocketStore = useWebSocketStore(pinia)
 const apiUrl = import.meta.env.VITE_API_URL || '/api'

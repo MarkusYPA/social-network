@@ -14,8 +14,8 @@ INSERT INTO users (email, password_hash, first_name, last_name, date_of_birth, a
 ('finn.zimmermann@example.com', '$2a$10$RhuX9T/SPdJ8vMxGvYcjaufLkseSRvBS5VHwFChHL4W4AwPRlS8bC', 'Finn', 'Zimmermann', '1991-11-08', 'data/uploads/avatars/1747642362945352000.jpeg', 'FinnZ', 'Tech geek and sci-fi fan.', FALSE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 'enable'),
 ('amina.ali@example.com', '$2a$10$RhuX9T/SPdJ8vMxGvYcjaufLkseSRvBS5VHwFChHL4W4AwPRlS8bC', 'Amina', 'Ali', '1990-05-15', 'data/uploads/avatars/1747642384091203000.jpeg', NULL, NULL, FALSE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 'enable'),
 ('yusuf.kamau@example.com', '$2a$10$RhuX9T/SPdJ8vMxGvYcjaufLkseSRvBS5VHwFChHL4W4AwPRlS8bC', 'Yusuf', 'Kamau', '1988-11-20', 'data/uploads/avatars/1747642408504644000.jpeg', 'Yus', 'Loves hiking and photography.', TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 'enable'),
-('aziz.bek@example.com', '$2a$10$RhuX9T/SPdJ8vMxGvYcjaufLkseSRvBS5VHwFChHL4W4AwPRlS8bC', 'Aziz', 'Bek', '1985-07-10', NULL, 'AzizB', NULL, FALSE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 'enable'),
-('zara.khan@example.com', '$2a$10$RhuX9T/SPdJ8vMxGvYcjaufLkseSRvBS5VHwFChHL4W4AwPRlS8bC', 'Zara', 'Khan', '1996-12-25', NULL, NULL, 'Enjoys reading and learning new languages.', FALSE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 'enable');
+('aziz.bek@example.com', '$2a$10$RhuX9T/SPdJ8vMxGvYcjaufLkseSRvBS5VHwFChHL4W4AwPRlS8bC', 'Aziz', 'Bek', '1985-07-10', 'data/default/profile.svg', 'AzizB', NULL, FALSE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 'enable'),
+('zara.khan@example.com', '$2a$10$RhuX9T/SPdJ8vMxGvYcjaufLkseSRvBS5VHwFChHL4W4AwPRlS8bC', 'Zara', 'Khan', '1996-12-25', 'data/default/profile.svg', NULL, 'Enjoys reading and learning new languages.', FALSE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL, 'enable');
 
 
 -- Insert posts (8 columns, image_path always included)

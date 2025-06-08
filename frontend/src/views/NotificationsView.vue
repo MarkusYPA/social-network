@@ -164,7 +164,7 @@ async function answerToEvent(eventID, action) {
 
 onMounted(() => {
     // Fetch notifications only if the store is empty, assuming TopBar might have loaded them
-    if (notifications.value.length === 0) {
+    if (!notifications.value || notifications.value?.length === 0) {
         notificationStore.fetchNotifications();
     }
 });

@@ -45,6 +45,8 @@ export const useNotificationStore = defineStore('notifications', () => {
      * @param {object} newNotification - The new notification object.
      */
     async function addNotification(newNotification) { // Made async
+        if (!notifications.value) notifications.value = []
+
         notifications.value.unshift(newNotification);
         if (!newNotification.is_read) {
             unreadCount.value++;

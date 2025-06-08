@@ -11,6 +11,9 @@ import (
 	"strings"
 )
 
+// const defaultAvatarPath = "data/default/avatardefault01.jpg"
+const defaultAvatarPath = "data/default/profile.svg"
+
 func HandleLogin(w http.ResponseWriter, r *http.Request) {
 	user, statusCode := service.Login(w, r)
 
@@ -56,18 +59,15 @@ func HandleMe(w http.ResponseWriter, r *http.Request) {
 
 func HandleRegister(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		json.NewEncoder(w).Encode(map[string]string{"message": "Method not allowed"})
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		fmt.Println("00")
 		return
 	}
 
 	err := r.ParseMultipartForm(10 << 20) // 10MB limit
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{"message": "Failed to parse form"})
+		fmt.Println("01", err)
+		http.Error(w, "Failed to parse form", http.StatusBadRequest)
 		return
 	}
 
@@ -83,9 +83,8 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 	about := strings.TrimSpace(r.FormValue("about"))
 
 	if email == "" || password == "" || firstName == "" || lastName == "" || dob == "" {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{"message": "Missing required fields"})
+		fmt.Println("02 missing fields")
+		http.Error(w, "Missing required fields", http.StatusBadRequest)
 		return
 	}
 
@@ -94,17 +93,24 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 	file, header, err := r.FormFile("avatar")
 	if err == nil {
 		defer file.Close()
-		avatarPath, err = service.UploadAvatar(file, header)
+		avatarPath, err = service.UploadAvatar(file, header) // Use UploadAvatar from current package or service
 		if err != nil {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusInternalServerError)
-			json.NewEncoder(w).Encode(map[string]string{"message": "Failed to save image"})
+			http.Error(w, "Failed to save image", http.StatusInternalServerError)
 			return
 		}
 	} else {
-		fmt.Println("Image reading error at registering:", err)
+		// If no file was provided (http.ErrMissingFile), set default avatar path
+		if err == http.ErrMissingFile {
+			avatarPath.Valid = true
+			avatarPath.String = defaultAvatarPath
+			fmt.Println("No avatar uploaded, setting default avatar path:", defaultAvatarPath)
+		} else {
+			// Other errors during file reading
+			fmt.Println("Image reading error at registering:", err)
+			http.Error(w, "Failed to read image data", http.StatusInternalServerError)
+			return
+		}
 	}
-
 	userInfo := struct {
 		Email      string
 		Password   string
@@ -127,9 +133,7 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 
 	errMsg, statusCode := service.RegisterUser(userInfo)
 	if !(statusCode >= http.StatusOK && statusCode < http.StatusMultipleChoices) { // error code
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(statusCode)
-		json.NewEncoder(w).Encode(map[string]string{"message": errMsg})
+		http.Error(w, errMsg, statusCode)
 		return
 	}
 
