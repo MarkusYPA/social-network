@@ -90,7 +90,7 @@
                           </div>
                           {{ comment.user.first_name }} {{ comment.user.last_name }}
                       </RouterLink>
-                      on {{ formattedCommentDate(comment.created_at) }}
+                      on {{ finnishTime(comment.created_at, 'medium', 'medium') }}
                     </small>  
                 </li>
             </ul>
@@ -102,8 +102,8 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import { RouterLink } from 'vue-router'
-import { useUserStore } from '@/stores/user';
-import { storeToRefs } from 'pinia';
+import { useImageProcessor } from '@/composables/useImageProcessor';
+import { useFormats } from '@/composables/useFormatting'
 
 const { post } = defineProps({
     post: {
@@ -118,13 +118,10 @@ const showComments = ref(false);
 const newComment = ref(false);
 const loadingComments = ref(false);
 const apiUrl = import.meta.env.VITE_API_URL || '/api';
-const userStore = useUserStore();
-const { user } = storeToRefs(userStore);
 const image = ref(null);
-const imageInput = ref(null); // Add ref for file inpu
-import { useImageProcessor } from '@/composables/useImageProcessor';
-// Track comment count separately
-const commentCount = ref(post.numberOfComments || 0);
+const imageInput = ref(null); // Add ref for file input
+const commentCount = ref(post.numberOfComments || 0);  // Track comment count separately
+const { finnishTime } = useFormats();
 
 const handleFileUpload = (event) => {
     image.value = event.target.files[0];
@@ -145,21 +142,7 @@ const commentLabel = computed(() => {
         : `Show Comments (${commentCount.value})`;
 });
 
-const formattedPostDate = computed(() => {
-    const date = new Date(post.created_at)
-    return date.toLocaleString("fi-FI", {
-        dateStyle: 'medium',
-        timeStyle: 'medium'
-    }).replace("klo ", "")
-})
-
-const formattedCommentDate = (dateString) => {
-    const date = new Date(dateString)
-    return date.toLocaleString("fi-FI", {
-        dateStyle: 'medium',
-        timeStyle: 'medium'
-    }).replace("klo ", "")
-}
+const formattedPostDate = computed(() => finnishTime(post.created_at, 'medium', 'short'))
 
 const showNewCommentForm = async() => {
     newComment.value = !newComment.value; 

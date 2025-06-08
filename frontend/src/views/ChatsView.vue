@@ -29,7 +29,7 @@
                                 {{ getLastMessage(chat).sender_name }}: {{ getLastMessage(chat).content }}
                             </div>
                             <span class="text-xs text-gray-500" v-if="getLastMessage(chat)">
-                                {{ formatDate(getLastMessage(chat).created_at) }}
+                                {{ finnishTime(getLastMessage(chat).created_at, 'medium', 'short') }}
                             </span>
 
                         </li>
@@ -94,6 +94,7 @@ import { storeToRefs } from 'pinia';
 import { useAuth } from '@/composables/useAuth'
 import { useErrorStore } from '@/stores/error'
 import { useRouter } from 'vue-router'
+import { useFormats } from '@/composables/useFormatting'
 
 const websocketStore = useWebSocketStore()
 const isConnected = computed(() => websocketStore.isConnected)
@@ -106,6 +107,7 @@ const { logout } = useAuth()
 const router = useRouter()
 const errorStore = useErrorStore()
 const apiUrl = import.meta.env.VITE_API_URL
+const { finnishTime } = useFormats();
 
 const selectedChat = ref(null)
 const chats = ref([])
@@ -245,14 +247,6 @@ function startChat(userToChatWith) { // Renamed 'user' param to avoid conflict w
 function getLastMessage(chat) {
     if (!chat.messages || chat.messages.length === 0) return null
     return chat.messages[chat.messages.length - 1]
-}
-
-const formatDate = (isoString) => {
-    const date = new Date(isoString)
-    return date.toLocaleString("fi-FI", {
-        dateStyle: 'medium',
-        timeStyle: 'short'
-    }).replace("klo ", "")
 }
 
 async function fetchFollowData() {

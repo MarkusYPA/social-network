@@ -30,17 +30,19 @@ import TwoColumnLayout from '@/layouts/TwoColumnLayout.vue'
 import NotificationsList from '@/components/NotificationsList.vue'
 import { useErrorStore } from '@/stores/error'
 import { useAuth } from '@/composables/useAuth'
-import { useNotificationStore } from '@/stores/notifications'; // Added
-import { storeToRefs } from 'pinia'; // Added
+import { useNotificationStore } from '@/stores/notifications';
+import { storeToRefs } from 'pinia';
+import { useUserStore } from '@/stores/user';   // necessary?
 
 const showCurrent = ref(true)
 const apiUrl = import.meta.env.VITE_API_URL
 const errorStore = useErrorStore()
 const router = useRouter()
 const { logout } = useAuth()
-
-const notificationStore = useNotificationStore(); // Added
-const { notifications, unreadCount } = storeToRefs(notificationStore); // Added
+const notificationStore = useNotificationStore()
+const { notifications, unreadCount } = storeToRefs(notificationStore)
+const userStore = useUserStore()
+const { user } = storeToRefs(userStore)
 
 const filteredNotifications = computed(() =>
     (notifications.value || []).filter(n => n.is_read !== showCurrent.value)
@@ -121,6 +123,38 @@ async function approveGroupInvite(groupInviteID, action) {
     }
 }
 
+async function answerToEvent(eventID, action) {
+    if (action === 'accepted') action = 'going'
+    if (action === 'declined') action = 'not_going'
+
+    try {
+        const res = await fetch(`${apiUrl}/api/events/respond`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                event_id: eventID,
+                user_id: user.value.id,
+                response: action
+            })
+        })
+
+        if (res.status === 401) {
+            logout();
+            router.push('/login');
+            return;
+        }
+
+        if (!res.ok) throw new Error(`Failed to accept/decline group invitation: ${res.status}`)
+
+    } catch (err) {
+        errorStore.setError('Error', `Error while accepting/declining group invitation`)
+        router.push('/error')
+    }
+}
+
 onMounted(() => {
     // Fetch notifications only if the store is empty, assuming TopBar might have loaded them
     if (notifications.value.length === 0) {
@@ -151,6 +185,9 @@ async function handleAccept(id) {
             case 'group_invitation':
                 await approveGroupInvite(n.group_invite_id, 'accepted'); // Existing API call
                 break;
+            case 'event_creation':
+                await answerToEvent(n.event_id, 'accepted'); // Existing API call
+                break;
         }
         // After successful action, refresh the list from the store to get latest state
         await notificationStore.fetchNotifications();
@@ -177,6 +214,9 @@ async function handleDecline(id) {
                 break;
             case 'group_invitation':
                 await approveGroupInvite(n.group_invite_id, 'declined'); // Existing API call
+                break;
+            case 'event_creation':
+                await answerToEvent(n.event_id, 'declined'); // Existing API call
                 break;
         }
         // After successful action, refresh the list from the store to get latest state

@@ -4,13 +4,12 @@
         <div v-if="chat" ref="messagesContainer"
             class="messages-container mb-4 p-4 bg-gray-50 rounded-lg h-96 overflow-y-auto">
             <div v-if="chat.messages && chat.messages.length > 0">
-                <div v-for="msg in chat.messages" :key="msg.id" :class="[
-                    'mb-3 p-3 rounded-lg max-w-xs',
-                    msg.sender_id === user.id ? 'ml-auto bg-nordic-primary-accent text-white' : 'bg-gray-200'
-                ]">
+                <div v-for="msg in chat.messages" :key="msg.id"
+                    :class="['mb-3 p-3 rounded-lg max-w-xs', (user && msg.sender_id === user.id) ? 'ml-auto bg-nordic-primary-accent text-white' : 'bg-gray-200']">
                     <p class="text-xs font-semibold mb-1">{{ msg.sender_name }}</p>
                     <p class="break-words">{{ msg.content }}</p>
-                    <span class="text-xs opacity-70 block text-right">{{ formatTime(msg.created_at) }}</span>
+                    <span class="text-xs opacity-70 block text-right">{{ finnishTime(msg.created_at, 'medium', 'short')
+                        }}</span>
                 </div>
             </div>
             <div v-else class="h-full flex items-center justify-center">
@@ -48,10 +47,11 @@
 <script setup>
 // (Your script section remains the same as the last corrected version)
 import { ref, watch, onMounted, nextTick } from 'vue'
+import { useRoute } from 'vue-router'
 import { useWebSocketStore } from '@/stores/websocket'
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/stores/user';
-import { useRoute } from 'vue-router'
+import { useFormats } from '@/composables/useFormatting'
 
 const props = defineProps({
     chat: {
@@ -64,16 +64,18 @@ const props = defineProps({
     }
 })
 
+const route = useRoute()
 const newMessage = ref('')
 const websocketStore = useWebSocketStore()
 const { isConnected } = storeToRefs(websocketStore)
 const userStore = useUserStore()
 const { user } = storeToRefs(userStore)
 const messagesContainer = ref(null);
-const route = useRoute()
+const { finnishTime } = useFormats();
 
 // Note: Ensure this watch block is aligned with the latest ChatBox.vue changes for deduplication.
-// It should primarily handle echoes for the sender
+// It should primarily handle echoes for the senderconst { finnishTime } = useFormats();
+
 watch(() => websocketStore.message, (newMsg) => {
     if (newMsg && newMsg.type === `${props.groupString}chat_message` && props.chat) {
 
@@ -134,36 +136,14 @@ function sendMessage() {
         type: `${props.groupString}chat_message`,
         from: user.value.id,
         from_name: user.value.first_name,
-        receiver_id: props.groupString ? route.params.id : props.chat.user_id || '0',
-        content: newMessage.value,
-        timestamp: Date.now(),
-        id: msgId // Send the client-generated ID
+        receiver_id: props.chat.user_id || '0', // Use the user ID from the chat object, means group id when group chat
+        content: newMessage.value
     }
 
     websocketStore.send(wsMessage);
 
     newMessage.value = '';
 }
-
-function formatTime(isoString) {
-    const date = new Date(isoString)
-    return date.toLocaleString("fi-FI", {
-        dateStyle: 'medium',
-        timeStyle: 'short'
-    }).replace("klo ", "")
-}
-
-// defaultChat function should likely be in ChatsView.vue if it's responsible for chat initialization.
-// If ChatBox needs to handle a null `chat` prop for display purposes only, keep it here.
-// For robust setup, better handled in parent.
-// function defaultChat() {
-//     return {
-//         "is_active": true,
-//         "name": "",
-//         "user_id": route.params.id, // Requires `import { useRoute } from 'vue-router'`
-//         "messages": []
-//     }
-// }
 
 watch(
     () => props.chat?.messages,
@@ -183,9 +163,5 @@ onMounted(() => {
             messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
         }
     })
-    // Remove if ChatsView.vue ensures `props.chat` is never null or handles its initialization
-    // if (!props.chat) {
-    //     props.chat = defaultChat()
-    // }
 })
 </script>

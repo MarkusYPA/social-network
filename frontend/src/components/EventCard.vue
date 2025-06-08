@@ -20,7 +20,7 @@
                 </p>
                 <p>
                     <span class="font-semibold text-nordic-dark">Time:</span>
-                    <span class="text-nordic-light ml-1">{{ formatDate(event.event_datetime) }}</span>
+                    <span class="text-nordic-light ml-1">{{ finnishTime(event.event_datetime, 'medium', 'short') }}</span>
                 </p>
                 <p>
                     <span class="font-semibold text-nordic-dark">Description:</span>
@@ -114,10 +114,12 @@
 import { computed, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { storeToRefs } from 'pinia';
+import { useFormats } from '@/composables/useFormatting'
 
 const apiUrl = import.meta.env.VITE_API_URL || '/api'
 const userStore = useUserStore()
 const { user } = storeToRefs(userStore)
+const { finnishTime } = useFormats();
 
 const props = defineProps({ event: Object })
 
@@ -127,14 +129,6 @@ const userStatus = computed(() => {
     if (props.event.not_going?.some(p => p.id === userId)) return 'not_going'
     return 'pending'
 })
-
-const formatDate = (isoString) => {
-    const date = new Date(isoString)
-    return date.toLocaleString("fi-FI", {
-        dateStyle: 'medium',
-        timeStyle: 'short'
-    }).replace("klo ", "")
-}
 
 /* onMounted(() => {
     console.log("event prop in event card:", props.event);

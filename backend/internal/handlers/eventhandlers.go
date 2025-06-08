@@ -27,19 +27,39 @@ func HandleCreateEvent(w http.ResponseWriter, r *http.Request) {
 
 	var event model.Event
 	if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
+		fmt.Println("decoding error at HandleCreateEvent:", err)
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
 		return
 	}
 
 	event.CreatorID = userID
+	event.Creator, err = repository.GetUserById(userID, false)
+	if err != nil {
+		fmt.Println("error getting creator at HandleCreateEvent:", err)
+		http.Error(w, "Failed to get user data", http.StatusInternalServerError)
+		return
+	}
+	group, err := repository.GetGroupById(event.GroupID)
+	if err != nil {
+		fmt.Println("error getting group at HandleCreateEvent:", err)
+		http.Error(w, "Failed to get group data", http.StatusInternalServerError)
+		return
+	}
+	event.Group = group.Title
+
+	fmt.Println("Event before creation:", event)
 
 	id, err := repository.CreateEvent(event)
 	if err != nil {
+		fmt.Println("error creating event at HandleCreateEvent:", err)
 		http.Error(w, "Could not create event", http.StatusInternalServerError)
 		return
 	}
 
-	json.NewEncoder(w).Encode(map[string]int{"event_id": id})
+	event.ID = &id
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(event)
 }
 
 func HandleEventResponse(w http.ResponseWriter, r *http.Request) {
@@ -59,11 +79,10 @@ func HandleEventResponse(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
 		return
 	}
-
 	resp.UserID = userID
 
 	if resp.Response != "going" && resp.Response != "not_going" && resp.Response != "pending" {
-		http.Error(w, "Invalid status", http.StatusBadRequest)
+		http.Error(w, "Invalid request", http.StatusBadRequest)
 		return
 	}
 
