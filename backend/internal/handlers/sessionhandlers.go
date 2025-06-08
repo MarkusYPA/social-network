@@ -12,7 +12,7 @@ import (
 )
 
 // const defaultAvatarPath = "data/default/avatardefault01.jpg"
-const defaultAvatarPath = "data/default/profile.svg"
+const DefaultAvatarPath = "data/default/profile.svg"
 
 func HandleLogin(w http.ResponseWriter, r *http.Request) {
 	user, statusCode := service.Login(w, r)
@@ -102,8 +102,8 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 		// If no file was provided (http.ErrMissingFile), set default avatar path
 		if err == http.ErrMissingFile {
 			avatarPath.Valid = true
-			avatarPath.String = defaultAvatarPath
-			fmt.Println("No avatar uploaded, setting default avatar path:", defaultAvatarPath)
+			avatarPath.String = DefaultAvatarPath
+			fmt.Println("No avatar uploaded, setting default avatar path:", DefaultAvatarPath)
 		} else {
 			// Other errors during file reading
 			fmt.Println("Image reading error at registering:", err)

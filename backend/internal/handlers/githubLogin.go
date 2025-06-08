@@ -177,7 +177,7 @@ func HandleGitHubCallback(w http.ResponseWriter, r *http.Request) {
 			DOB:        randomDOB,
 			Nickname:   githubUser.Login,
 			About:      "",
-			AvatarPath: sql.NullString{String: "", Valid: false}, // No avatar path initially
+			AvatarPath: sql.NullString{String: DefaultAvatarPath, Valid: true}, // No avatar path initially
 		}
 
 		errMsg, statusCode := service.RegisterUser(userInfo)
